@@ -32,27 +32,25 @@ from .const import (
     DOMAIN,
     MQTT_DEFAULT_PORT,
 )
+from .discovery import async_discover
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _user_schema(
+def _step_user_schema(
     name: str = DEFAULT_NAME,
     host: str = DEFAULT_HOST,
     port: int = MQTT_DEFAULT_PORT,
-    phileo_id: str = DEFAULT_PHILEO_ID,
-    oxeo_id: str = DEFAULT_OXEO_ID,
     cloud_enabled: bool = False,
     email: str = "",
     password: str = "",
 ) -> vol.Schema:
+    """First step: connection + optional cloud credentials only."""
     return vol.Schema(
         {
             vol.Required(CONF_NAME, default=name): str,
             vol.Required(CONF_HOST, default=host): str,
             vol.Required(CONF_PORT, default=port): int,
-            vol.Required(CONF_PHILEO_ID, default=phileo_id): str,
-            vol.Required(CONF_OXEO_ID, default=oxeo_id): str,
             vol.Optional(CONF_CLOUD_ENABLED, default=cloud_enabled): bool,
             vol.Optional(CONF_EMAIL, default=email): str,
             vol.Optional(CONF_PASSWORD, default=password): str,
@@ -60,14 +58,20 @@ def _user_schema(
     )
 
 
-def _normalize_device_id(value: str | None) -> str:
-    """Akzeptiert MAC mit oder ohne Trennzeichen und gibt 12 Hex-Zeichen uppercase zurueck.
+def _step_devices_schema(phileo_id: str = "", oxeo_id: str = "") -> vol.Schema:
+    """Second step: device IDs (auto-prefilled from MQTT discovery)."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_PHILEO_ID, default=phileo_id): str,
+            vol.Required(CONF_OXEO_ID, default=oxeo_id): str,
+        }
+    )
 
-    Erlaubte Trennzeichen: `:`, `-`, `.`, Leerzeichen. Beispiele die alle gleich
-    behandelt werden: `08D1F9976534`, `08:D1:F9:97:65:34`, `08-d1-f9-97-65-34`,
-    `08 D1 F9 97 65 34`. Bei ungueltiger Eingabe wird der bereinigte (aber sonst
-    unveraenderte) Wert zurueckgegeben — die Validierung in `_is_valid_device_id`
-    greift dann nachgelagert mit klarer Fehlermeldung.
+
+def _normalize_device_id(value: str | None) -> str:
+    """MAC mit oder ohne Trennzeichen → 12 Hex-Zeichen uppercase.
+
+    Akzeptierte Trennzeichen: `:`, `-`, `.`, Leerzeichen.
     """
     if not value:
         return ""
@@ -75,7 +79,6 @@ def _normalize_device_id(value: str | None) -> str:
 
 
 def _is_valid_device_id(device_id: str) -> bool:
-    """Phileo/Oxeo IDs muessen 12 Hex-Zeichen sein (WLAN-MAC, normalisiert)."""
     if not device_id or len(device_id) != 12:
         return False
     try:
@@ -106,9 +109,12 @@ def _test_mqtt_port(host: str, port: int) -> bool:
 
 
 class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle the config flow for Orpheo VP."""
+    """Two-step config flow: connection + auto-discovered device IDs."""
 
     VERSION = 3
+
+    def __init__(self) -> None:
+        self._user_data: dict[str, Any] = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -119,16 +125,12 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             name = (user_input.get(CONF_NAME) or "").strip() or DEFAULT_NAME
             host = (user_input.get(CONF_HOST) or "").strip()
             port = user_input.get(CONF_PORT, MQTT_DEFAULT_PORT)
-            phileo_id = _normalize_device_id(user_input.get(CONF_PHILEO_ID))
-            oxeo_id = _normalize_device_id(user_input.get(CONF_OXEO_ID))
             cloud_enabled = bool(user_input.get(CONF_CLOUD_ENABLED))
             email = (user_input.get(CONF_EMAIL) or "").strip()
             password = user_input.get(CONF_PASSWORD) or ""
 
             if not host or not _is_valid_host(host):
                 errors["base"] = "invalid_ip"
-            elif not _is_valid_device_id(phileo_id) or not _is_valid_device_id(oxeo_id):
-                errors["base"] = "invalid_device_id"
 
             if not errors:
                 reachable = await self.hass.async_add_executor_job(_test_mqtt_port, host, port)
@@ -152,32 +154,23 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         errors["base"] = "cannot_connect"
 
             if not errors:
-                await self.async_set_unique_id(phileo_id)
-                self._abort_if_unique_id_configured()
-
-                data = {
+                self._user_data = {
                     CONF_NAME: name,
                     CONF_HOST: host,
                     CONF_PORT: port,
-                    CONF_PHILEO_ID: phileo_id,
-                    CONF_OXEO_ID: oxeo_id,
                     CONF_CLOUD_ENABLED: cloud_enabled,
+                    CONF_EMAIL: email,
+                    CONF_PASSWORD: password,
+                    CONF_POOL_ID: cloud_pool_id,
                 }
-                if cloud_enabled:
-                    data[CONF_EMAIL] = email
-                    data[CONF_PASSWORD] = password
-                    data[CONF_POOL_ID] = cloud_pool_id or phileo_id
-
-                return self.async_create_entry(title=name, data=data)
+                return await self.async_step_devices()
 
             return self.async_show_form(
                 step_id="user",
-                data_schema=_user_schema(
+                data_schema=_step_user_schema(
                     name=name,
                     host=host or DEFAULT_HOST,
                     port=port,
-                    phileo_id=phileo_id or DEFAULT_PHILEO_ID,
-                    oxeo_id=oxeo_id or DEFAULT_OXEO_ID,
                     cloud_enabled=cloud_enabled,
                     email=email,
                     password=password,
@@ -185,11 +178,65 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors=errors,
             )
 
-        return self.async_show_form(
-            step_id="user",
-            data_schema=_user_schema(),
-            errors=errors,
-        )
+        return self.async_show_form(step_id="user", data_schema=_step_user_schema())
+
+    async def async_step_devices(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.FlowResult:
+        errors: dict[str, str] = {}
+        host = self._user_data[CONF_HOST]
+        port = self._user_data[CONF_PORT]
+
+        if user_input is None:
+            # Auto-discovery on entering the step (~6s subscribed to '#')
+            discovered = await async_discover(self.hass, host, port)
+            phileo_found = discovered.get("phileo_id", "")
+            oxeo_found = discovered.get("oxeo_id", "")
+            _LOGGER.info(
+                "Auto-discovery on %s:%s — phileo=%s oxeo=%s",
+                host, port, phileo_found or "—", oxeo_found or "—",
+            )
+            return self.async_show_form(
+                step_id="devices",
+                data_schema=_step_devices_schema(phileo_found, oxeo_found),
+                description_placeholders={
+                    "phileo_status": "automatisch erkannt" if phileo_found else "nicht erkannt — bitte manuell eingeben",
+                    "oxeo_status": "automatisch erkannt" if oxeo_found else "nicht erkannt — bitte manuell eingeben",
+                },
+            )
+
+        phileo_id = _normalize_device_id(user_input.get(CONF_PHILEO_ID))
+        oxeo_id = _normalize_device_id(user_input.get(CONF_OXEO_ID))
+
+        if not _is_valid_device_id(phileo_id) or not _is_valid_device_id(oxeo_id):
+            errors["base"] = "invalid_device_id"
+            return self.async_show_form(
+                step_id="devices",
+                data_schema=_step_devices_schema(phileo_id, oxeo_id),
+                errors=errors,
+                description_placeholders={
+                    "phileo_status": "bitte korrigieren",
+                    "oxeo_status": "bitte korrigieren",
+                },
+            )
+
+        await self.async_set_unique_id(phileo_id)
+        self._abort_if_unique_id_configured()
+
+        data: dict[str, Any] = {
+            CONF_NAME: self._user_data[CONF_NAME],
+            CONF_HOST: host,
+            CONF_PORT: port,
+            CONF_PHILEO_ID: phileo_id,
+            CONF_OXEO_ID: oxeo_id,
+            CONF_CLOUD_ENABLED: self._user_data[CONF_CLOUD_ENABLED],
+        }
+        if self._user_data[CONF_CLOUD_ENABLED]:
+            data[CONF_EMAIL] = self._user_data[CONF_EMAIL]
+            data[CONF_PASSWORD] = self._user_data[CONF_PASSWORD]
+            data[CONF_POOL_ID] = self._user_data.get(CONF_POOL_ID) or phileo_id
+
+        return self.async_create_entry(title=self._user_data[CONF_NAME], data=data)
 
     @staticmethod
     @callback

@@ -2,17 +2,23 @@
   "config": {
     "step": {
       "user": {
-        "title": "TomTuT Pool Dosing Vigipool",
-        "description": "Name und IP-Adresse des Geraets (MQTT-Broker). Cloud-Fallback ist optional.",
+        "title": "TomTuT Pool Dosing Vigipool — Verbindung",
+        "description": "Name und IP-Adresse der Phileo VP (sie ist gleichzeitig der MQTT-Broker). Cloud-Fallback ist optional und wird nur genutzt wenn die lokale MQTT-Verbindung laenger als 5 Minuten keine Daten liefert.",
         "data": {
           "name": "Name der Dosieranlage",
-          "host": "IP-Adresse",
+          "host": "IP-Adresse der Phileo VP",
           "port": "MQTT-Port",
-          "phileo_id": "Phileo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
-          "oxeo_id": "Oxeo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
           "cloud_enabled": "Cloud-Fallback aktivieren",
           "email": "Vigipool E-Mail (optional)",
           "password": "Vigipool Passwort (optional)"
+        }
+      },
+      "devices": {
+        "title": "TomTuT Pool Dosing Vigipool — Geraete",
+        "description": "Der Discovery-Mechanismus liest fuer ein paar Sekunden auf dem MQTT-Broker mit und erkennt die Phileo + Oxeo automatisch.\n\n• Phileo VP: {phileo_status}\n• Oxeo VP: {oxeo_status}\n\nDie WLAN-MACs duerfen mit oder ohne Trennzeichen eingegeben werden (`08:D1:F9:97:65:34`, `08-D1-F9-97-65-34`, `08D1F9976534`).",
+        "data": {
+          "phileo_id": "Phileo VP Device-ID",
+          "oxeo_id": "Oxeo VP Device-ID"
         }
       }
     },
