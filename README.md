@@ -67,10 +67,26 @@ The device must be on a network reachable from Home Assistant (typically your Io
 
 ### Finding the Device-IDs
 
-The Device-IDs are the WiFi MAC addresses of the two internal modules (Phileo + Oxeo), each without colons. You can find them by:
+The Device-IDs are the WiFi MAC addresses of the two internal modules (Phileo + Oxeo), each written **without colons** (12 hex characters). Both modules are based on Espressif (ESP32) chips with these OUI prefixes:
 
-- Listening on MQTT topic `#` for the IP and noting the `phileox_<MAC>` / `oxeox_<MAC>` topic prefixes, **or**
-- Reading them from the Vigipool / Poolsana app device info
+| Module | OUI prefix | Example full ID |
+|---|---|---|
+| Phileo VP (pH) | `08:D1:F9` → `08D1F9...` | `08D1F9976534` |
+| Oxeo VP (Redox) | `B0:B2:1C` → `B0B21C...` | `B0B21C023368` |
+
+You can read the IDs in any of the following ways — pick whichever is easiest for you:
+
+1. **Router / DHCP lease list (recommended).**
+   Open your router's admin UI, look at the DHCP clients / connected devices, and locate two ESP32 entries on the IoT network — one starting with `08:D1:F9` (Phileo VP), one with `B0:B2:1C` (Oxeo VP). Strip the colons → that's the Device-ID.
+
+2. **Vigipool / Poolsana app.**
+   Open the device detail screen in the app — the hardware identifier (sometimes labelled "ID", "Serial", "MAC" or shown beneath the firmware version) is the same MAC as above.
+
+3. **Sticker on the device.**
+   Open the box; the WiFi MAC is usually printed on a sticker on the inside cover or directly on the WiFi/Bluetooth module.
+
+4. **MQTT sniffing.**
+   With the device on your network, subscribe to topic `#` on its IP — the `phileox_<MAC12>` / `oxeox_<MAC12>` topic prefixes contain the Device-IDs directly.
 
 ---
 
@@ -114,6 +130,12 @@ MIT
 
 ---
 
-## Transparency
+## Ueber den Autor
 
-I'm a trained IT systems specialist with many years of experience. I use **Claude** and **ChatGPT** as development assistants when building these integrations. The code runs in my own production Home Assistant environment.
+Ich bin ausgebildeter Fachinformatiker fuer Systemintegration mit langjaehriger IT-Erfahrung. Frueher war es der MCSE — heute ist es Vibe Coding. Diese Integration wurde mit Hilfe von Claude gebaut. Ohne KI-Unterstuetzung haette ich das nebenbei nie in dieser Form hinbekommen. Der Code wurde von mir getestet und laeuft in meinem eigenen Produktiv-Setup.
+
+Mehr auf [thomasbase.de](https://thomasbase.de) und [YouTube @TomTuT](https://www.youtube.com/@TomTuT).
+
+---
+
+Das war TomTuT, bleib hart am Gas.
