@@ -196,12 +196,24 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "Auto-discovery on %s:%s — phileo=%s oxeo=%s",
                 host, port, phileo_found or "—", oxeo_found or "—",
             )
+
+            def _fmt(mac: str) -> str:
+                return ":".join(mac[i:i + 2] for i in range(0, 12, 2))
+
             return self.async_show_form(
                 step_id="devices",
                 data_schema=_step_devices_schema(phileo_found, oxeo_found),
                 description_placeholders={
-                    "phileo_status": "automatisch erkannt" if phileo_found else "nicht erkannt — bitte manuell eingeben",
-                    "oxeo_status": "automatisch erkannt" if oxeo_found else "nicht erkannt — bitte manuell eingeben",
+                    "phileo_status": (
+                        f"✅ erkannt (`{_fmt(phileo_found)}`)"
+                        if phileo_found
+                        else "❌ nicht erkannt — bitte unten manuell eingeben"
+                    ),
+                    "oxeo_status": (
+                        f"✅ erkannt (`{_fmt(oxeo_found)}`)"
+                        if oxeo_found
+                        else "❌ nicht erkannt — bitte unten manuell eingeben"
+                    ),
                 },
             )
 
@@ -215,8 +227,8 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data_schema=_step_devices_schema(phileo_id, oxeo_id),
                 errors=errors,
                 description_placeholders={
-                    "phileo_status": "bitte korrigieren",
-                    "oxeo_status": "bitte korrigieren",
+                    "phileo_status": "⚠️ bitte korrigieren",
+                    "oxeo_status": "⚠️ bitte korrigieren",
                 },
             )
 

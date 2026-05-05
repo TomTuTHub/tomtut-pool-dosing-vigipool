@@ -14,11 +14,11 @@
         }
       },
       "devices": {
-        "title": "TomTuT Pool Dosing Vigipool — Geraete",
-        "description": "Der Discovery-Mechanismus liest fuer ein paar Sekunden auf dem MQTT-Broker mit und erkennt die Phileo + Oxeo automatisch.\n\n• Phileo VP: {phileo_status}\n• Oxeo VP: {oxeo_status}\n\nDie WLAN-MACs duerfen mit oder ohne Trennzeichen eingegeben werden (`08:D1:F9:97:65:34`, `08-D1-F9-97-65-34`, `08D1F9976534`).",
+        "title": "Geraete der Dosieranlage erkannt",
+        "description": "Folgende Geraete deiner Dosieranlage wurden automatisch erkannt:\n\n  •  **pH-Steuerung (Phileo VP)** — {phileo_status}\n  •  **Chlor-Steuerung (Oxeo VP)** — {oxeo_status}\n\nWenn beide erkannt wurden, brauchst du **nichts mehr zu aendern** — einfach unten auf **Senden** klicken.\n\nFalls du ein abweichendes Setup hast oder eines der Geraete nicht erkannt wurde, kannst du die WLAN-MACs hier auch manuell eintragen (mit oder ohne `:`/`-`/`.` als Trennzeichen).",
         "data": {
-          "phileo_id": "Phileo VP Device-ID",
-          "oxeo_id": "Oxeo VP Device-ID"
+          "phileo_id": "pH-Steuerung (Phileo VP)",
+          "oxeo_id": "Chlor-Steuerung (Oxeo VP)"
         }
       }
     },
