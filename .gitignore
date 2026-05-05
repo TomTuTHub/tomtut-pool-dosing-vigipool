@@ -1,0 +1,29 @@
+# Internes / nicht-public
+alt_Dosieranlage-Orpheo-VP/
+_shared-base
+memory/
+STARTUP_PROMPT.md
+CLAUDE.md
+.claude/
+agents/
+scripts/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editoren
+.vscode/
+.idea/
+*.swp
+*.swo

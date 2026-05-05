@@ -1,0 +1,219 @@
+title: Orpheo VP
+icon: mdi:flask
+views:
+  - title: Dosieranlage
+    path: orpheo
+    icon: mdi:flask
+    type: sections
+    max_columns: 2
+    sections:
+      # ------------------------------------------------------------------
+      # Hauptvisualisierung: Custom Card (Fork von tomtut-pool-dosing-card)
+      # ------------------------------------------------------------------
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:orpheo-vp-card
+            device_name: Orpheo VP Pool Dosieranlage
+            model: type1
+            image_variant: dark
+            # Positionen live getuned im HA Dashboard-Editor, dann ins YAML
+            # zurueckgespiegelt. Weiter anpassen: Stift-Icon -> Sliders.
+            pump_left_top: 25
+            pump_left_x: 34.5
+            pump_left_size: 9
+            pump_right_top: 24.5
+            pump_right_x: 33.5
+            pump_right_size: 9
+            pump_style: fan
+            pump_speed: 30
+            water_top: 79
+            water_height: 14
+            water_width: 100
+            water_center: 50
+            water_speed: 30
+            water_direction: right
+            water_inactive: gray
+            value_bottom: 23
+            value_ph_x: 33
+            value_rx_x: 32
+            value_scale: 85
+            value_box: true
+            value_labels: true
+            value_color: white
+            firmware_top: 4
+            firmware_left: 50
+            firmware_scale: 85
+            firmware_color: white
+            firmware_box: true
+            firmware_text: ""
+            # Zwei 230V-Stecker (pH-Pumpe links, Redox-Pumpe rechts).
+            # Entity-IDs spaeter im Editor eintragen — leer = Icon versteckt.
+            plug_entity_ph: ""
+            plug_entity_rx: ""
+            plug_ph_top: 28
+            plug_ph_left: 15
+            plug_rx_top: 28
+            plug_rx_right: 15
+
+      # ------------------------------------------------------------------
+      # Live-Werte auf einen Blick
+      # ------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Live-Werte
+            heading_style: title
+            icon: mdi:chart-line
+          - type: tile
+            entity: sensor.orpheo_vp_pool_dosieranlage_ph
+            name: pH
+            icon: mdi:ph
+            color: red
+          - type: tile
+            entity: sensor.orpheo_vp_pool_dosieranlage_orp_redox
+            name: Redox
+            icon: mdi:water-check
+            color: blue
+          - type: tile
+            entity: binary_sensor.orpheo_vp_pool_dosieranlage_durchfluss
+            name: Durchfluss
+            icon: mdi:waves
+            color: cyan
+          - type: tile
+            entity: binary_sensor.orpheo_vp_pool_dosieranlage_ph_dosierpumpe
+            name: pH Pumpe
+            icon: mdi:pump
+            color: green
+          - type: tile
+            entity: binary_sensor.orpheo_vp_pool_dosieranlage_chlor_dosierpumpe
+            name: Chlor Pumpe
+            icon: mdi:pump
+            color: blue
+          - type: tile
+            entity: binary_sensor.orpheo_vp_pool_dosieranlage_cloud_verbindung
+            name: Cloud
+            icon: mdi:cloud
+            color: purple
+          - type: tile
+            entity: number.orpheo_vp_pool_dosieranlage_ph_restmenge
+            name: pH Kanister Rest
+            icon: mdi:water-percent
+            color: red
+          - type: tile
+            entity: number.orpheo_vp_pool_dosieranlage_chlor_restmenge
+            name: Chlor Kanister Rest
+            icon: mdi:water-percent
+            color: blue
+
+      # ------------------------------------------------------------------
+      # Steuerung: Sollwerte, Behältergrößen, Modi
+      # ------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Steuerung
+            heading_style: title
+            icon: mdi:tune
+          - type: entities
+            title: Sollwerte
+            entities:
+              - entity: number.orpheo_vp_pool_dosieranlage_ph_sollwert
+                name: pH Sollwert
+                icon: mdi:ph
+              - entity: number.orpheo_vp_pool_dosieranlage_orp_sollwert
+                name: Redox Sollwert
+                icon: mdi:water-check
+          - type: entities
+            title: Behälter & Dosierung
+            entities:
+              - entity: number.orpheo_vp_pool_dosieranlage_ph_behaeltergroesse
+                name: pH-Senker Behälter
+                icon: mdi:barrel
+              - entity: number.orpheo_vp_pool_dosieranlage_chlor_behaeltergroesse
+                name: Chlor Behälter
+                icon: mdi:barrel
+              - entity: number.orpheo_vp_pool_dosieranlage_ph_maximaldosis_tag
+                name: pH Max/Tag
+                icon: mdi:speedometer
+              - entity: number.orpheo_vp_pool_dosieranlage_chlor_maximaldosis_tag
+                name: Chlor Max/Tag
+                icon: mdi:speedometer
+          - type: entities
+            title: Betriebsmodus
+            entities:
+              - entity: switch.orpheo_vp_pool_dosieranlage_spa_modus
+                name: Spa-Modus
+                icon: mdi:hot-tub
+              - entity: switch.orpheo_vp_pool_dosieranlage_winter_modus
+                name: Winter-Modus
+                icon: mdi:snowflake
+
+      # ------------------------------------------------------------------
+      # Diagnose
+      # ------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Diagnose
+            heading_style: title
+            icon: mdi:stethoscope
+          - type: entities
+            title: Dosiermengen
+            entities:
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_dosierung_heute
+                name: pH heute
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_dosierung_gesamt
+                name: pH gesamt
+              - entity: sensor.orpheo_vp_pool_dosieranlage_chlor_dosierung_heute
+                name: Chlor heute
+              - entity: sensor.orpheo_vp_pool_dosieranlage_chlor_dosierung_gesamt
+                name: Chlor gesamt
+          - type: entities
+            title: Gerät
+            entities:
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_wlan_signal
+                name: pH WLAN
+              - entity: sensor.orpheo_vp_pool_dosieranlage_orp_wlan_signal
+                name: ORP WLAN
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_firmware
+                name: pH Firmware
+              - entity: sensor.orpheo_vp_pool_dosieranlage_orp_firmware
+                name: ORP Firmware
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_fehlercode
+                name: pH Fehler
+              - entity: sensor.orpheo_vp_pool_dosieranlage_orp_fehlercode
+                name: ORP Fehler
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_state
+                name: pH State
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph_mode
+                name: pH Mode
+              - entity: sensor.orpheo_vp_pool_dosieranlage_orp_mode
+                name: ORP Mode
+
+      # ------------------------------------------------------------------
+      # History
+      # ------------------------------------------------------------------
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Verlauf (24h)
+            heading_style: title
+            icon: mdi:chart-timeline-variant
+          - type: history-graph
+            hours_to_show: 24
+            entities:
+              - entity: sensor.orpheo_vp_pool_dosieranlage_ph
+                name: pH
+              - entity: sensor.orpheo_vp_pool_dosieranlage_orp_redox
+                name: Redox
+          - type: history-graph
+            hours_to_show: 24
+            entities:
+              - entity: binary_sensor.orpheo_vp_pool_dosieranlage_ph_dosierpumpe
+                name: pH Pumpe
+              - entity: binary_sensor.orpheo_vp_pool_dosieranlage_chlor_dosierpumpe
+                name: Chlor Pumpe
+              - entity: binary_sensor.orpheo_vp_pool_dosieranlage_durchfluss
+                name: Durchfluss

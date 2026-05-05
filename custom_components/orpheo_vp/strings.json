@@ -1,0 +1,51 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "TomTuT Orpheo VP",
+        "description": "Name und IP-Adresse des Geraets (MQTT-Broker). Cloud-Fallback ist optional.",
+        "data": {
+          "name": "Name der Dosieranlage",
+          "host": "IP-Adresse",
+          "port": "MQTT-Port",
+          "phileo_id": "Phileo VP Device-ID (12 Hex)",
+          "oxeo_id": "Oxeo VP Device-ID (12 Hex)",
+          "cloud_enabled": "Cloud-Fallback aktivieren",
+          "email": "Vigipool E-Mail (optional)",
+          "password": "Vigipool Passwort (optional)"
+        }
+      }
+    },
+    "error": {
+      "invalid_ip": "Ungueltige IP-Adresse",
+      "invalid_device_id": "Ungueltige Device-ID — erwartet: 12 Hex-Zeichen (WLAN-MAC ohne Trennzeichen, z.B. 08D1F9976534)",
+      "invalid_auth": "Ungueltige Cloud-Anmeldedaten",
+      "cannot_connect": "Verbindung fehlgeschlagen (MQTT oder Cloud nicht erreichbar)",
+      "cloud_credentials_required": "Cloud-Fallback aktiviert — bitte E-Mail und Passwort angeben"
+    },
+    "abort": {
+      "already_configured": "Geraet ist bereits konfiguriert"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "TomTuT Orpheo VP — Einstellungen",
+        "description": "IP-Adresse, MQTT-Port, Device-IDs und Cloud-Fallback aendern.",
+        "data": {
+          "host": "IP-Adresse",
+          "port": "MQTT-Port",
+          "phileo_id": "Phileo VP Device-ID (12 Hex)",
+          "oxeo_id": "Oxeo VP Device-ID (12 Hex)",
+          "cloud_enabled": "Cloud-Fallback aktivieren",
+          "email": "Vigipool E-Mail",
+          "password": "Vigipool Passwort"
+        }
+      }
+    },
+    "error": {
+      "invalid_ip": "Ungueltige IP-Adresse",
+      "cannot_connect": "Verbindung fehlgeschlagen"
+    }
+  }
+}

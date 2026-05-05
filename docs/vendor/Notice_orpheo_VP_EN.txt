@@ -1,0 +1,755 @@
+28 pages
+
+========== PAGE 1 ==========
+OPERATING INSTRUCTIONS
+Orpheo VP
+Automatic and connected pH & ORP regulation
+PF10J050 - PF10J051
+Table of Contents
+1. Technical specifications ...................................................................................................................  2
+2. Pack contents ...............................................................................................................................  3
+3. Description ..................................................................................................................................  3
+3.1. Bluetooth® and Wifi control ...................................................................................................  4
+3.2. iOs / Android applications ......................................................................................................  4
+3.3. pH regulation .....................................................................................................................  4
+4. Installing the Phileo VP & Phileo POD VP .................................. .........................................................  5
+4.1. Wall mounting ....................................................................................................................  5
+4.2. Hydraulic connection ............................................................................................................  5
+4.3. Connecting the sensor and flow detector .....................................................................................  9
+4.4. Connection to electricity ........................................................................................................  9
+5. Operation ....................................................................................................................................  9
+5.1. Control interface .................................................................................................................  9
+5.2. Configuration ........................ .............................................................................................  9
+6. Appliance operation ......................................................................................................................  13
+6.1. Data timer and injection not active: .........................................................................................  13
+6.2. Selecting of set-point value ................................................................ ...................................  13
+6.3. Measured value display ........................................................................................................ 14
+7. Reset to zero ............................................................................................................................... 14
+8. Sensor maintenance ............................................................................................................ ..........  14
+A. Declaration of conformity ...........................
+
+========== PAGE 2 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+1. Technical specifications
+Dimensions 260 x 180 x 80
+Power supply voltage 230 V AC 50Hz
+Power consumption 10W
+Weight 700 g (Pump only)
+Protection rating IP-54
+pH regulation
+Measurement range
+Calibration
+Measurement using a combined electrode - +/- 0.1
+pH = 5 to pH = 9
+pH 6.86 (2-point calibration using the app)
+Dosing pump
+Flow rate
+Peristaltic
+from 0 to 1.5 l/h
+Zeliapod dimensions
+Only Phileo POD VP
+185 mm (length)
+Connection Ø 50mm
+Bluetooth®
+Low Energy (v4.x)
+Conforms to the R & TTE Directive 1999/5/EC
+Wifi 802.11 b/g/and "dual band" (2.4 Ghz only)
+2
+
+
+========== PAGE 3 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+2. Pack contents
+1 Box Phileo VP & Phileo POD VP
+1 Flow detector
+1 pH sensor + sensor holder
+1 Technical manual (this document)
+1 "Vigipool Universe" leaflet
+1 wall support + 2 screws and 2 wall plugs
+1 teflon roll
+1 Injection kit (injector, strainer, tube)
+1 calibration container
+1 pH 6.86 calibration solution bag
+2 ∅50 1/2" pipe saddle (if Phileo VP)
+1 ∅50 3/4" pipe saddle + 3/4" M nipple (if Phileo VP)
+1 ZeliaPod measuring chamber + union fittings + 3/4" M
+nipple (if Phileo POD VP)
+3. Description
+• Automatic pH regulation using a set point value
+• RGB Back-lit dosing pump
+• User friendly interface: 1 selection button + 5 indicator lights
+• User friendly smartphone app
+• Wifi and Bluetooth connection
+• Easier installation using the ZeliaPod measuring and injection chamber (if Phileo POD VP)
+• Compatible with the Vigipool connected environment
+3
+
+
+========== PAGE 4 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+3.1. Bluetooth® and Wifi control
+The Phileo VP & Phileo POD VP  control box has an embedded Bluetooth® and Wifi transmitter used to control your ap-
+pliance from a smartphone or tablet. To be able to control the Phileo VP & Phileo POD VP , you need an iOs (Apple®) or
+Android smartphone or tablet running Bluetooth® Low Energy (v4.x) or Wifi 802.11 b/n/g. Other operating systems (Windows
+Phone®,...) or devices not running the above-mentioned pre-requisites are not supported.
+For a Wifi connection, the local Wifi details (SSID and password) need to be entered and a Vigipool account created to connect
+your Phileo VP & Phileo POD VP  to the Wifi router and control the Phileo VP & Phileo POD VP  using local Wifi and
+remotely (see "Vigipool Universe" leaflet).
+3.2. iOs / Android applications
+Android download App Store download
+You can also search for Phileo VP using the App Store and Play Store search engines
+With Bluetooth, only one phone/tablet can be connected to the box at a time. To connect with
+another device, you must first disconnect.
+To enable the Bluetooth pairing, bring the phone/tablet up to the unit's contact when requested
+by the app, or press the button on the device.
+It is possible to automatically update the software embedded in the device. To do this, it must
+be connected to WiFi or to another Vigipool device that is itself connected to WiFi. If you only
+use the device via Bluetooth, it is possible to create an access point from your phone in order to
+temporarily connect the device and update its software if necessary.
+3.3. pH regulation
+The pH, or potential Hydrogen, is a highly important parameter for water treatment. It has a strong influence on the efficiency
+of disinfectants. The pH, or potential Hydrogen, measures the acidity of the water. Its value is between 0 and 14. A solution
+with a pH of 7 is neutral. If the pH is below 7 the solution is acid and if it is above the solution is called basic or alkaline.
+For the comfort of bathers, effective treatment and reliability of the installation, the swimming pool water pH must be kept at
+about 7. A pH of between 6.8 and 7.8 is generally considered to be correct. Water which is too acid (pH < 6.8) is aggressive
+to the mucous membranes, causes metal parts to corrode and may damage plastics (liners). Water which is too alkaline (pH >
+7.8) may also be aggressive (caustic) and considerably reduce the effectiveness of the chlorine.
+Users can configure the Phileo VP & Phileo POD VP  for pH- mode or pH+ mode. In pH- mode, the Phileo VP & Phileo
+POD VP injects PHminus to lower the pool pH and in pH+ mode, it injects PH plus to raise the pool pH.
+In order to avoid possible measurement errors, it is recommended to check the sensor calibration once per month. To do this,
+just follow the instructions in the CALIBRATION section.
+The disinfectants and pH correctors used for pools can have an adverse effect on health and
+the environment.
+These 
+
+========== PAGE 5 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+4. Installing the Phileo VP & Phileo POD VP
+4.1. Wall mounting
+For safety reasons, and in accordance with the French NF C15-100 standard, the Phileo VP &
+Phileo POD VP control box must be installed
+• either at over 3.50 m from the pool edge. This distance takes into account the distance around
+obstacles. If the Phileo VP & Phileo POD VP control box is installed behind a wall, the dis-
+tance will include the length of the path taken to move around the wall to reach the box.
+• or in an in-ground space in the immediate vicinity of the swimming pool. In this case the
+space must be accessible via a hatch which requires a tool to open it.
+The automatic controller Phileo VP
+• should not be installed outdoors, it should be protected from rain, cleaning or watering jets, and UV radiation (sun).
+• resistant to water splashes but should not be placed in a flood risk area.
+• must be placed on a safe and stable surface and fixed to the wall using the wall support and the supplied plugs and screws:
+4.2. Hydraulic connection
+The Phileo VP model is shipped with 3 pipe saddles to install the accessories required to properly run pH regulation.
+To make installation easier, the Phileo POD VP model is shipped with the ZeliaPod measuring and injection chamber. This
+measuring chamber makes it possible to limit the number of drill holes in the piping and to centralise data.
+4.2.1. Injector installation - Phileo VP model
+The injector is used to inject the swimming pool with the required amount of product. It is imperative that the injector be
+placed after the sensors (pH and RedOx) and as close as possible to the backflow into the pool.
+TEFLON must be used to screw the injector to the ½" pipe saddle.
+The tube is positioned on the injector by screwing the upper injector nut.
+4.2.2. Flow detector installation - Phileo VP model
+The detector is mounted on a ¾" pipe saddle. After having installed the pipe saddle, and making sure no protrusions (on the
+pipe drilling) can block the movement of the detector, screw the ¾" nipple to the saddle using Teflon, then gently screw the
+detector to the other end of the nipple. Whether the flow detector is installed vertically or horizontally, the arrow engraved
+on the detector must point in the water flow direction.
+4.2.2.1. Sensor installation - Phileo VP model
+The sensor is installed on the 50mm backflow piping with 1/2" threading using a pipe saddle into which the sensor holder
+is screwed.
+5
+
+
+========== PAGE 6 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+4.2.3. ZeliaPod hydraulic installation - POD VP model only
+ZeliaPod installs on a diameter 50mm pipe using the supplied union fittings. It is installed downstream of filtration (after the
+filter) and must be placed horizontally on a section of pipe that is always pressurised relative to the pool water level, this is to
+make sure that there is always water in the Zelia Pod and that the sensors are always in water.
+Prefer using a by-pass (mandatory in excess of 15m3/hour) so that the flow can be controlled, and to be able to remove it
+without stopping filtering.
+During installation and use, make sure the Zelia Pod is pressurised relative to the pool water
+level, to make sure it is always full of water and free of air. If this were not the case and air is
+present inside the measurement chamber, the sensor readings may not be correct.
+When installing, fit the sensors by pushing them gently all the way into their housing, lift 3-4
+mm and tighten the sensor holder nut.
+6
+
+
+========== PAGE 7 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+4.2.4. Installation diagram without Zelia Pod - VP Model
+The flow detector (D) is placed on the same section of pipe as the other supplied elements. The pH sensor ( B) must be placed
+after the filter at a minimum distance of 60 cm from any other measuring appliances, and as far away as possible from the pH
+injector (E), installed downstream and placed as close as possible to the pool backflow.
+4.2.5. Accessory position
+Use the photo below to see where to position the different elements. To screw in the injector (E or F), use the provided flat seal
+to make the assembly watertight. The use of Teflon tape on the sensor holder (B or C) threading is recommended.
+A. Ground rod
+B. Sensor housing
+C. Sensor housing (not used)
+D. Flow detector
+7
+
+
+========== PAGE 8 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+E. Injector housing
+F. Injector housing (not used)
+Use the supplied roll of Teflon tape when assembling the sensor holder and the supplied flat seal for the injector.
+4.2.6. Installation diagram with Zelia Pod - POD VP Model only
+The Zelia Pod measuring chamber includes the pH sensor (B), the pH corrector injector - (E), as well as the flow detector (D).
+Connect the PoolTerre included in the Zelia Pod to a separate earth rod.
+8
+
+
+========== PAGE 9 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+4.3. Connecting the sensor and flow detector
+1. Power supply cable
+2. pH sensor
+3. Flow detector
+4. Dosing pump
+4.4. Connection to electricity
+Installation of this project involves a hazard of electric shocks. We strongly recommend you
+contract a professional installer. Incorrect installation puts you in danger and may irreversibly
+damage the product and the equipment connected to it.
+The box is shipped with a power supply cable that can be connected to the mains in the technical room using a standard plug
+and socket (230V / 50 Hz). This socket must be protected by a 30mA ground fault circuit breaker in compliance with
+the NF C15-100 standard.
+The appliance is fitted with a flow detector and must not be installed on a power supply line
+that is coupled to the filtering. This could cause the appliance to malfunction.
+5. Operation
+Phileo VP & Phileo POD VP can be configured using the pump interface or from the smartphone app available for iOS and
+Android. We encourage you to use the app which provides access to additional parameters, in particular for calibration.
+5.1. Control interface
+The interface is composed of a selection button (A), of 5 green light indicators (B) and a multi-colour LED (C) installed behind
+the dosing pump.
+5.2. Configuration
+5.2.1. Powering up
+The system is switched on using the luminous switch on the side of the automatic regulator.
+When it is powered on, the light indicators on the front flash for several seconds until the appliance has started up.
+(Start-up phase: flickering in the dark green indicators (B) and then different colours of the multi-colour LED (C))
+9
+
+
+========== PAGE 10 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+10
+
+
+========== PAGE 11 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+5.2.2. Selecting a set point value
+• pH-: to inject a pH minus product and therefore lower the pool pH. The pump will start
+when the water pH is above the pH set point.
+• pH+: to inject a pH plus product and therefore increase the pool pH. The pump will therefore
+start when the water pH is below the pH set point.
+1. The 5 green LEDs (B) flash 3 times before stopping to indicate the switch to selection mode
+2. LED (C) lights to indicate the running mode
+3. Each press of the selection key switches from one mode to the other. The multi-colour LED ( C) and the green indicator
+lights (B) illuminate depending on the selected running mode:
+• WHITE: pH- (default mode) with green indicator lights (B) 6.8 and 7.0 lit
+• CYAN / BLUE: pH+ with green indicator lights (B) 7.4 and 7.6 lit
+4. Wait 5 seconds. The appliance switches back to normal mode and the running mode is configured. LED ( C) flashes 5
+seconds in the selected mode. The operating mode is configured and the device switches to "Vigipool" mode (see below).
+• If you need to change the control mode again, you have to reset the system (see "Reset")
+5.2.3. Selecting the "central" Vigipool device
+• Please refer to the attached "Vigipool Universe" leaflet for more information.
+Once the control mode has been selected, the multi-colour LED (C) flashes white. This corresponds to the chosen device that
+will operate the Vigipool "central" function (see "Vigipool Universe" leaflet attached):
+• If only this device is installed in the system, press the selection button (A). The unit is now configured as a Vigipool "central"
+unit and you can add other units to the installation later.
+• If the installation has several Vigipool Universe compatible devices
+- If a device is already configured as a Vigipool "central" device, press the button on the Vigipool "central" device if it has
+been powered for more than one minute. (If it has been powered for less than one minute, it is not necessary to press the
+button). Your Phileo VP & Phileo POD VP then connects to the Vigipool "central" unit: it stops flashing in white and goes
+into normal operation mode.
+- If no other device is configured as a Vigipool "central unit", turn on all the devices and press the button of the device you
+intend to use as Vigipool "central unit". The other products will connect to the device you have validated as Vigipool "central
+unit", stop flashing in white and go to normal operation mode.
+• If you need to change the choice of the Vigipool "central unit", it is necessary to reset the
+system (see "Reset").
+5.2.4. Pump priming
+To be able to prime the regulation circuit by running the peristaltic pump, the selection button ( A) must be kept pressed for a
+long time (gt; 10 seconds). After 10 seconds, the RGB LED (C) flashes turquoise and the pump starts running regardless of the
+flow detector status for a maximum of 30 seconds, as long as the selection button is kept pressed. Once the button i
+
+========== PAGE 12 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+5.2.5. Sensor calibration
+Use the supplied pH 6.86 bag and the container to create a calibration solution before proceed-
+ing to calibrate. Mix the contents of the bag in 250 ml of water.
+The filtering must be turned off to calibrate the sensor.
+1. Immerse the pH sensor in the 6.86 calibration solution
+2. Keep the selection button (A) pressed for 3 seconds
+3. LED (C) lights blue. Release the selection button (A)
+4. The first green LED - 6.8 (B) and LED (C) light
+The 5 indicators (B) will progressively light to indicate the calibration progress
+The colour of LED (C) will show how far it is from the expected measurement
+• Green: measured value very close (+/-0.1)
+• Yellow / amber: value off by between 0.1 and 0.5
+• Red: value off by more than 0.5
+1. Once the 5 indicators are on and steady and the LED is either green or yellow, the measurement is stabilised
+2. Press the selection button to validate the calibration
+3. The LED flashes green quickly to indicate calibration validation
+4. The first green LED - 6.8 (B) and LED (C) light
+If the RGB LED flashes red, the calibration is not taken into account: value off by over 0.5
+or unstabilised measurement. In that case, the appliance returns to its normal state and trou-
+bleshooting can be done on the sensor.
+5.2.5.1. Sensor calibration using the smartphone app
+The smartphone app has more advanced sensor calibration features that guarantee a more reliable and accurate measurement.
+• Calibration using 1 or 2 measurement points: in addition to the pH 6.86 calibration, you can calibrate using another
+measurement. A 1-point calibration is also possible using a different value between 6 and 8
+• Manual adjustment: manual adjustment is used to correct your measurement. For example, if there is a minor drift (+/- 0.5),
+you can increase or lower your appliancersquo;s measurement to be as close as possible to the actual value, in intervals of 0.1.
+5.2.6. Additional parameters that can be set from the smartphone app:
+5.2.6.1. Winterisation mode
+The app can be used to activate winterisation mode. As long as winterisation mode is active:
+• Correction product injection is stopped
+• Notifications / alarm messages are disabled
+• The RGB LED is permanently lit in cyan
+12
+
+
+========== PAGE 13 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+5.2.6.2. Maximum daily injection volume configuration
+The maximum daily volume of pH corrector to inject can be limited by entering a value different from 0 here. The volume is
+set to 0.3L by default, even if you are not using the app.
+• Volume configurable from 0.1 to 2.0 L
+• Incremented in 0.1 L steps
+This function and configuration are very important because they protect your pool from excess correction pH product injections
+if the sensor gives an incorrect pH value.
+For example, a safety set to 0.3 L / 24h is in line with pool volumes of about 60 m³. For pool volumes of about 40 m³, the
+value can even be lowered to 0.2 L / 24h.
+If this setting is configured to quot;Disabledquot; no volume injection limits will be applied.
+If there is a power failure, the volume injected over the previous 24 hours is reset to 0.
+5.2.6.3. Setting the product volume in the container
+Used to indicate the total corrector product container volume. This value is counted down in order to indicate when the container
+is empty and thus avoid pumping needlessly. This parameter is disabled by default.
+The value must be updated every time the container is replaced.
+• Volume configurable from 0 to 50 L
+• Incremented in 1 L steps
+6. Appliance operation
+Phileo VP & Phileo POD VP does not take any measurements:
+• during the first 2 minutes after power up (time for the value to be set),
+• if the flow rate is not detected by the device (to ensure that measurements are only taken
+when the filtration is running and to guarantee the correct values of the pool water and not
+of the stagnant water in the pipe).
+6.1. Data timer and injection not active:
+A hysteresis of ±0.1 is provided for to prevent oscillation around the set point value.
+Injection may be blocked due to several causes despite a measured value that is different from the set point:
+• When the appliance is powered on, there are no injections during the first 2 minutes
+• When the flow switch detects a flow, there is a 2 minute delay before injection starts. Injection stops automatically when
+the flow switches to OFF
+• There are no injections if the measurement is pH < 5 or pH > 9 (= pH measurement fault)
+• There are no injections if the container volume = 0 (injection liquid container empty)
+• There are no injections if the 24H Max injected volume is reached
+• There are no injections in winterisation mode
+6.2. Selecting of set-point value
+1. Make a quick touch on the selection button (A)
+2. One of the 5 green light indicators (B) flashes for 5 seconds displaying the current setpoint.
+3. While the LED is flashing, each touch of the selection button (A) moves the setpoint to the right until it is reached 7.6 and
+then back to 6.8. Press until the desired setpoint is selected.
+4. Wait 5 seconds to validate the setpoint change. The unit will return to the normal mode with the new setpoint.
+5. Depending on the selected operating mode, the default value is set to:
+• pH-: 7.
+
+========== PAGE 14 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+• pH+: 7.0
+6.3. Measured value display
+The 5 light indicators on the front display the measured pH (here 7.2). If the pH is between two graduations, the LED for the
+previous graduation remains steady (here 7.2), the LED below or above it depending on how the pH is read, flashes slowly.
+Example on the following images: the measured pH passes from 7.2 to 7.3.
+The 7.4 LED will flash, and when the value increases to 7.4 only the 7.4 green LED will be on and steady.
+The pump multi-coloured LED (C) indicates whether the pH is lower or higher than the set point:
+Pump colour - Mul-
+ti-colours LED (C) Description
+Green The measured value varies from the setpoint by ≤ 0.1
+Yellow The measured value varies from the setpoint by 0.1 to 1.0
+Red The measured value varies from the setpoint by ≥ 0.1
+The multi-colour LED will flash while injection is ongoing while remaining in the colour for the measurement (flashing yellow
+for example)
+* The pump lighting colour changes from green to red depending on the difference between the measurement and the setpoint,
+gradually changing to yellow, orange, etc.
+7. Reset to zero
+It is possible that a factory reset may be required to set the Phileo VP & Phileo POD VP back to the original factory settings.
+To do this, please:
+1. Turn off the device ( on/off switch on the box side) and wait for about 10 seconds,
+2. Press the selection button (A) and maintain the pressure,
+3. Turn on the device while holding down the button,
+4. Wait until green indicator lights (B) are flashing
+5. Release the button. All parameters are reset to the factory settings.
+A reset will erase all the parameters in memory (calibration, setpoint, WiFi configuration, bin
+volume, pairing of phones and other Vigipool Universe devices, etc.). It is therefore necessary
+to restart the start-up procedure after resetting.
+8. Sensor maintenance
+When a pH or sensor is immersed in water, a film forms around the glass bulb at its tip and gets thicker over time. This invisible
+film causes response times to lengthen, deteriorates the slope and deviates from point 0. It is easy to compensate for changes
+to point zero by regularly recalibrating. Increased temperatures are also a major ageing factor.
+Sensor protection:
+Remove the sensor from the pipe and keep it in its original bottle
+Fill the original bottle with a KCl solution of 3 mol/litre or, failing that, with a PH7 solution or with tap water.
+Place the sensor head in the bottle
+14
+
+
+========== PAGE 15 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+Keep it at room temperature.
+An incorrectly winterised sensor will have a slower response time and make it harder to cali-
+brate.
+Sensor regeneration:
+At the end of winterisation, we recommend immersing the sensor in a 50% PH4, 50% KCl 3 mol/l solution for 12h
+Calibration:
+Each sensor is characterised by its drift and slope. As these characteristics tend to drift with use, calibration must be carried
+out regularly. Calibration is mandatory in the following cases:
+• when installing
+• after replacing the sensor
+• after every cleaning using a cleaning solution
+• after long term storage
+• when the measurement results are too far from the expected results.
+Note that the average sensor service life varies from 6 to 18 months depending on use. A TAC
+< 100 mg/l reduces the sensor's service life.
+Sensors are fragile consumables that should be checked by a professional.
+15
+
+
+========== PAGE 16 ==========
+OPERATING INSTRUCTIONS Phileo VP & Phileo POD VP v1.0EN
+A. Declaration of conformity
+CCEI S.A.S (FR 47 40 35 21 693) declares that the Phileo VP & Phileo POD VP  product meets the
+safety and electromagnetic compatibility requirements of European directives 2014/35/EU and 2014/30/EU.
+         
+ Emmanuel Baret
+Marseille, on 11/07/2022
+Distributor's stamp
+Date of sale: . . . . . . . . . . . . . . . . . . . . . . . Batch N°: . . . . . . . . . . . . . . . . . . . . . . . . . . .
+16
+
+
+========== PAGE 17 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+1. Technical specifications
+Dimensions 260 x 180 x 80
+Power supply voltage 230 V AC 50Hz
+Power consumption 10W
+Weight 700 g (Pump only)
+Protection rating IP-54
+Redox regulation
+Measurement range
+Calibration
+Set point
+Measurement using a combined electrode - +/- 5mV
+100 to 900mV
+650mV (solution supplied) or 550 to 750 mV via the application
+Between 500 and 700mV, in 50mV steps (on the box or via the application)
+Dosing pump
+Flow rate
+Peristaltic
+from 0 to 1.5 l/h
+Bluetooth®
+Low Energy (v4.x)
+Conforms to the R & TTE Directive 1999/5/EC
+Wifi 802.11 b/g/and "dual band" (2.4 Ghz only)
+2
+
+
+========== PAGE 18 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+2. Pack contents
+1 Box Oxeo LT VP
+1 Technical manual (this document)
+1 "Vigipool Universe" leaflet
+1 wall support + 2 screws and 2 wall plugs
+1 Injection kit (injector, strainer, tube)
+1 calibration container 650mV
+3. Description
+• Automatic RedOx regulation using a set point value
+• RGB Back-lit dosing pump
+• User friendly interface: 1 selection button + 5 indicator lights
+• User friendly smartphone app
+• Compatible with the Vigipool connected environment
+The box Oxeo LT VP
+• is installed in addition to a PHILEO POD VP,
+• will be slaved to the flow switch of the PHILEO POD VP to which it is connected,
+• cannot be used without a PHILEO POD VP.
+3
+
+
+========== PAGE 19 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+3.1. Bluetooth® and Wifi control
+The Oxeo LT VP control box has an embedded Bluetooth® and Wifi transmitter used to control your appliance from a smart-
+phone or tablet. To be able to control the Oxeo LT VP, you need an iOs (Apple®) or Android smartphone or tablet running
+Bluetooth® Low Energy (v4.x) or Wifi 802.11 b/n/g. Other operating systems (Windows Phone®,...) or devices not running
+the above-mentioned pre-requisites are not supported.
+For a Wifi connection, the local Wifi details (SSID and password) need to be entered and a Vigipool account created to connect
+your Oxeo LT VP to the Wifi router and control the Oxeo LT VP using local Wifi and remotely (see "Vigipool Universe"
+leaflet).
+3.2. iOs / Android applications
+To download the Vigipool application, scan the QR CODE below. You can also search for Vigipool in the App Store or Play
+Store search engine:
+With Bluetooth, only one phone/tablet can be connected to the box at a time. To connect with
+another device, you must first disconnect.
+To enable the Bluetooth pairing, bring the phone/tablet up to the unit's contact when requested
+by the app, or press the button on the device.
+It is possible to automatically update the software embedded in the device. To do this, it must
+be connected to WiFi or to another Vigipool device that is itself connected to WiFi. If you only
+use the device via Bluetooth, it is possible to create an access point from your phone in order to
+temporarily connect the device and update its software if necessary.
+3.3. Automatic treatment - RedOx regulation
+Oxeo LT VP measures the RedOx potential and injects an oxidising product into the pool water until the RedOx potential falls
+below the set threshold.
+All disinfectants used in pools are used to oxidise micro-organisms. This oxidation consists in capturing electrons on organic
+molecules to prevent the proliferation of bacteria. This chemical reaction is called oxidation reduction and the capacity of water
+to disinfect can be assessed by measuring its oxidation reduction potential (RedOx potential, ORP or rH).
+Pool water must not only be clean and healthy, it must also be capable of destroying the bacteria and micro-organisms that
+arrive from the outside. It is therefore not enough just to disinfect it, it must also remain disinfectant. It is therefore essential
+to use ''persistent'' products.
+3.3.1. Liquid disinfectants
+Chlorine
+Chlorine is undoubtedly the most used disinfectant in pools and the only one authorised in France for pools open to the public.
+In its liquid form it is usually sodium hypochlorite (bleach). Highly efficient, sodium hypochlorite has the disadvantage of
+raising the pH. Chlorine treatment is not recommended with a UV steriliser.
+Active oxygen
+Also called hydrogen peroxide, it is a powerful disinfectant. Odour free and irritation free, active oxygen however has a short
+duration which limits its use to small pools.
+Associated with UV treatment, active oxygen is
+
+========== PAGE 20 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+4. Installing the Oxeo LT VP
+4.1. Wall mounting
+For safety reasons, and in accordance with the French NF C15-100 standard, the Oxeo LT VP
+control box must be installed
+• either at over 3.50 m from the pool edge. This distance takes into account the distance around
+obstacles. If the Oxeo LT VP control box is installed behind a wall, the distance will include
+the length of the path taken to move around the wall to reach the box.
+• or in an in-ground space in the immediate vicinity of the swimming pool. In this case the
+space must be accessible via a hatch which requires a tool to open it.
+The automatic controller Oxeo LT VP
+• should not be installed outdoors, it should be protected from rain, cleaning or watering jets, and UV radiation (sun).
+• resistant to water splashes but should not be placed in a flood risk area.
+• must be placed on a safe and stable surface and fixed to the wall using the wall support and the supplied plugs and screws:
+4.2. Hydraulic connection
+To make installation easier, the Phileo POD VP model is shipped with the ZeliaPod measuring and injection chamber. This
+measuring chamber makes it possible to limit the number of drill holes in the piping and to centralise data.
+4.2.1. Flow detector installation - model
+The detector is mounted on a ¾" pipe saddle. After having installed the pipe saddle, and making sure no protrusions (on the
+pipe drilling) can block the movement of the detector, screw the ¾" nipple to the saddle using Teflon, then gently screw the
+detector to the other end of the nipple. Whether the flow detector is installed vertically or horizontally, the arrow engraved
+on the detector must point in the water flow direction.
+4.2.1.1. Sensor installation - model
+4.2.2. Accessory position
+Use the photo below to see where to position the different elements. To screw in the injector (E or F), use the provided flat seal
+to make the assembly watertight. The use of Teflon tape on the sensor holder (B or C) threading is recommended.
+5
+
+
+========== PAGE 21 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+A. Ground rod
+B. Sensor housing
+C. Sensor housing (not used)
+D. Flow detector
+E. Injector housing
+F. Injector housing (not used)
+Use the supplied roll of Teflon tape when assembling the sensor holder and the supplied flat seal for the injector.
+4.2.3. Installation diagram with Zelia Pod - POD VP Model only
+The Zelia Pod measuring chamber includes the pH and RedOx sensor (B), the pH corrector injectors and disinfectant (E),
+as well as the flow detector (D).
+Connect the PoolTerre included in the Zelia Pod to a .
+6
+
+
+========== PAGE 22 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+4.3. Connecting the sensor and flow detector
+7
+
+
+========== PAGE 23 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+1. Power supply cable
+2. RedOx sensor
+3. Dosing pump
+4.4. Connection to electricity
+Installation of this project involves a hazard of electric shocks. We strongly recommend you
+contract a professional installer. Incorrect installation puts you in danger and may irreversibly
+damage the product and the equipment connected to it.
+The box is shipped with a power supply cable that can be connected to the mains in the technical room using a standard plug
+and socket (230V / 50 Hz). This socket must be protected by a 30mA ground fault circuit breaker in compliance with
+the NF C15-100 standard.
+The appliance is fitted with a flow detector and must not be installed on a power supply line
+that is coupled to the filtering. This could cause the appliance to malfunction.
+5. Operation
+Oxeo LT VP can be configured using the pump interface or from the smartphone app available for iOS and Android. We
+encourage you to use the app which provides access to additional parameters, in particular for calibration.
+5.1. Control interface
+The interface is composed of a selection button (A), of 5 green light indicators (B) and a multi-colour LED (C) installed behind
+the dosing pump.
+5.2. Configuration
+5.2.1. Powering up
+The system is switched on using the luminous switch on the side of the automatic regulator.
+When it is powered on, the light indicators on the front flash for several seconds until the appliance has started up.
+(Start-up phase: flickering in the dark green indicators (B) and then different colours of the multi-colour LED (C))
+8
+
+
+========== PAGE 24 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+5.2.2. Selecting the "central" Vigipool device
+• Please refer to the attached "Vigipool Universe" leaflet for more information.
+Once the control mode has been selected, the multi-colour LED ( C) flashes white. This corresponds to the chosen device that
+will operate the Vigipool "central" function (see "Vigipool Universe" leaflet attached):
+• If only this device is installed in the system, press the selection button (A). The unit is now configured as a Vigipool "central"
+unit and you can add other units to the installation later.
+• If the installation has several Vigipool Universe compatible devices
+- If a device is already configured as a Vigipool "central" device, press the button on the Vigipool "central" device if it has
+been powered for more than one minute. (If it has been powered for less than one minute, it is not necessary to press the
+button). Your Phileo VP & Phileo POD VP then connects to the Vigipool "central" unit: it stops flashing in white and goes
+into normal operation mode.
+- If no other device is configured as a Vigipool "central unit", turn on all the devices and press the button of the device you
+intend to use as Vigipool "central unit". The other products will connect to the device you have validated as Vigipool "central
+unit", stop flashing in white and go to normal operation mode.
+• If you need to change the choice of the Vigipool "central unit", it is necessary to reset the
+system (see "Reset").
+5.2.3. Pump priming
+To be able to prime the regulation circuit by running the peristaltic pump, the selection button ( A) must be kept pressed for a
+long time (>10 seconds). After 10 seconds, the RGB LED ( C) flashes turquoise and the pump starts running regardless of the
+flow detector status for a maximum of 30 seconds, as long as the selection button is kept pressed. Once the button is released,
+the pump returns to its normal state. It is necessary to repeat the operation if a longer priming time is required.
+9
+
+
+========== PAGE 25 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+5.2.4. Sensor calibration
+The filtering must be turned off to calibrate the sensor.
+1. Immerse the Redox sensor in the 650mV calibration solution
+2. Keep the selection button (A) pressed for 3 seconds
+3. LED (C) lights blue. Release the selection button (A)
+4. The first green LED - 6.8 (B) and LED (C) light
+1. The first green LED - 500mV (B) and the multi-colour LED (C) lights up
+If the RGB LED (C) flashes red, the calibration is not taken into account: value off by over
+or unstabilised measurement. In that case, the appliance returns to its normal state and trou-
+bleshooting can be done on the sensor.
+5.2.4.1. Sensor calibration using the smartphone app
+The smartphone app has more advanced sensor calibration features that guarantee a more reliable and accurate measurement.
+• Calibration using 1 measurement point: Instead of calibrating at 650mV, you can calibrate with another value between
+550 and 750mV.
+• Manual adjustment: manual adjustment is used to correct your measurement. For example, if there is a minor drift (+/-
+200 mV), you can increase or lower your appliancersquo;s measurement to be as close as possible to the actual value, in
+intervals of 20 mV.
+5.2.5. Additional parameters that can be set from the smartphone app:
+5.2.5.1. Winterisation mode
+The app can be used to activate winterisation mode. As long as winterisation mode is active:
+• Correction product injection is stopped
+• Notifications / alarm messages are disabled
+• The RGB LED (C) is permanently lit in cyan
+5.2.5.2. Maximum daily injection volume configuration
+The maximum daily volume of pH corrector to inject can be limited by entering a value different from 0 here. The volume is
+set to 0.3L by default, even if you are not using the app.
+• Volume configurable from 0.1 to 5.0 L
+• Incremented from 0.1 to 0.1 L
+This function and configuration are very important because they protect your pool from excess correction product injections
+if the sensor gives an incorrect pH value.
+If this setting is configured to quot;Disabledquot; no volume injection limits will be applied.
+If there is a power failure, the volume injected over the previous 24 hours is reset to 0.
+10
+
+
+========== PAGE 26 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+5.2.5.3. Setting the product volume in the container
+Used to indicate the total corrector product container volume. This value is counted down in order to indicate when the container
+is empty and thus avoid pumping needlessly. This parameter is disabled by default.
+The value must be updated every time the container is replaced.
+• Volume configurable from 0 to 50 L
+• Incremented in 1 L steps
+6. Appliance operation
+Oxeo LT VP does not take any measurements:
+• during the first 2 minutes after power up (time for the value to be set),
+• if the flow rate is not detected by the device (to ensure that measurements are only taken
+when the filtration is running and to guarantee the correct values of the pool water and not
+of the stagnant water in the pipe).
+6.1. Data timer and injection not active:
+A hysteresis of ±50mV is provided for to prevent oscillation around the set point value.
+Injection may be blocked due to several causes despite a measured value that is different from the set point:
+• When the appliance is powered on, there are no injections during the first 2 minutes
+• When the flow switch detects a flow, there is a 2 minute delay before injection starts. Injection stops automatically when
+the flow switches to OFF
+• There are no injections if the measurement is ORP<100mV ou >900mV (= ORP measurement fault)
+• There are no injections if the container volume = 0 (injection liquid container empty)
+• There are no injections if the 24H Max injected volume is reached
+• There are no injections in winterisation mode
+6.2. Selecting of set-point value
+1. Make a quick touch on the selection button (A)
+2. One of the 5 green light indicators (B) flashes for 5 seconds displaying the current setpoint.
+3. While the LED is flashing, each touch of the selection button (A) moves the setpoint to the right until it is reached and then
+back to . Press until the desired setpoint is selected.
+4. Wait 5 seconds to validate the setpoint change. The unit will return to the normal mode with the new setpoint.
+5. Depending on the selected operating mode, the default value is set to: 600mV
+6.3. Measured value display
+For example, in the following images, the ORP measured increases from 600 to 630mV.
+The 650 LED will flash, and when the ORP value increases to 650mV only the green 650 LED will be permanently lit.
+Pump colour - Mul-
+ti-colours LED (C) Description
+Green The measured value varies from the setpoint by # 50mV
+Yellow - Orange (gradual*) The measured value varies from the setpoint by 50 to 150mV
+Red The measured value varies from the setpoint by # 150mV
+11
+
+
+========== PAGE 27 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+7. Reset to zero
+It is possible that a factory reset may be required to set the   OXEO POD VP & OXEO VP back to the original factory settings.
+To do this, please:
+1. Turn off the device ( on/off switch on the box side) and wait for about 10 seconds,
+2. Press the selection button (A) and maintain the pressure,
+3. Turn on the device while holding down the button,
+4. Wait until green indicator lights (B) are flashing
+5. Release the button. All parameters are reset to the factory settings.
+A reset will erase all the parameters in memory (calibration, setpoint, WiFi configuration, bin
+volume, pairing of phones and other Vigipool Universe devices, etc.). It is therefore necessary
+to restart the start-up procedure after resetting.
+8. Sensor maintenance
+When a or sensor is immersed in water, a film forms around the glass bulb at its tip and gets thicker over time. This invisible
+film causes response times to lengthen, deteriorates the slope and deviates from point 0. It is easy to compensate for changes
+to point zero by regularly recalibrating. Increased temperatures are also a major ageing factor.
+Sensor protection:
+Remove the sensor from the pipe and keep it in its original bottle
+Fill the original bottle with a KCl solution of 3 mol/litre or, failing that, with a PH7 solution or with tap water.
+Place the sensor head in the bottle
+Keep it at room temperature.
+An incorrectly winterised sensor will have a slower response time and make it harder to cali-
+brate.
+Sensor regeneration:
+At the end of winterisation, we recommend immersing the sensor in a 50% PH4, 50% KCl 3 mol/l solution for 12h
+Calibration:
+Each sensor is characterised by its drift and slope. As these characteristics tend to drift with use, calibration must be carried
+out regularly. Calibration is mandatory in the following cases:
+• when installing
+• after replacing the sensor
+• after every cleaning using a cleaning solution
+• after long term storage
+• when the measurement results are too far from the expected results.
+Note that the average sensor service life varies from 6 to 18 months depending on use. A TAC
+< 100 mg/l reduces the sensor's service life.
+Sensors are fragile consumables that should be checked by a professional.
+12
+
+
+========== PAGE 28 ==========
+OPERATING INSTRUCTIONS Oxeo LT VP 1.0EN
+A. Declaration of conformity
+Bleu Electrique SAS (FR47403521693) declares that the Oxeo LT VP product meets the safety and
+electromagnetic compatibility requirements of European directives 2014/35/EU and 2014/30/EU.
+    
+ Emmanuel Baret
+Marseille, on 30/06/2023
+Distributor's stamp
+Date of sale: . . . . . . . . . . . . . . . . . . . . . . . Batch N°: . . . . . . . . . . . . . . . . . . . . . . . . . . .
+13
+
