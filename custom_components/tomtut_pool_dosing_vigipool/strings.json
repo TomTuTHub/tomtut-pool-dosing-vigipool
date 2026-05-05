@@ -8,8 +8,8 @@
           "name": "Name der Dosieranlage",
           "host": "IP-Adresse",
           "port": "MQTT-Port",
-          "phileo_id": "Phileo VP Device-ID (12 Hex)",
-          "oxeo_id": "Oxeo VP Device-ID (12 Hex)",
+          "phileo_id": "Phileo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
+          "oxeo_id": "Oxeo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
           "cloud_enabled": "Cloud-Fallback aktivieren",
           "email": "Vigipool E-Mail (optional)",
           "password": "Vigipool Passwort (optional)"
@@ -18,7 +18,7 @@
     },
     "error": {
       "invalid_ip": "Ungueltige IP-Adresse",
-      "invalid_device_id": "Ungueltige Device-ID — erwartet: 12 Hex-Zeichen (WLAN-MAC ohne Trennzeichen, z.B. 08D1F9976534)",
+      "invalid_device_id": "Ungueltige Device-ID — erwartet: 12 Hex-Zeichen (WLAN-MAC). Trennzeichen `:` `-` `.` und Leerzeichen werden automatisch entfernt. Beispiele: 08D1F9976534, 08:D1:F9:97:65:34, 08-d1-f9-97-65-34",
       "invalid_auth": "Ungueltige Cloud-Anmeldedaten",
       "cannot_connect": "Verbindung fehlgeschlagen (MQTT oder Cloud nicht erreichbar)",
       "cloud_credentials_required": "Cloud-Fallback aktiviert — bitte E-Mail und Passwort angeben"
@@ -35,8 +35,8 @@
         "data": {
           "host": "IP-Adresse",
           "port": "MQTT-Port",
-          "phileo_id": "Phileo VP Device-ID (12 Hex)",
-          "oxeo_id": "Oxeo VP Device-ID (12 Hex)",
+          "phileo_id": "Phileo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
+          "oxeo_id": "Oxeo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
           "cloud_enabled": "Cloud-Fallback aktivieren",
           "email": "Vigipool E-Mail",
           "password": "Vigipool Passwort"

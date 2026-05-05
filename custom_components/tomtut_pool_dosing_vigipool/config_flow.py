@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import ipaddress
 import logging
+import re
 import socket
 from typing import Any
 
@@ -59,8 +60,22 @@ def _user_schema(
     )
 
 
+def _normalize_device_id(value: str | None) -> str:
+    """Akzeptiert MAC mit oder ohne Trennzeichen und gibt 12 Hex-Zeichen uppercase zurueck.
+
+    Erlaubte Trennzeichen: `:`, `-`, `.`, Leerzeichen. Beispiele die alle gleich
+    behandelt werden: `08D1F9976534`, `08:D1:F9:97:65:34`, `08-d1-f9-97-65-34`,
+    `08 D1 F9 97 65 34`. Bei ungueltiger Eingabe wird der bereinigte (aber sonst
+    unveraenderte) Wert zurueckgegeben — die Validierung in `_is_valid_device_id`
+    greift dann nachgelagert mit klarer Fehlermeldung.
+    """
+    if not value:
+        return ""
+    return re.sub(r"[\s:.\-]", "", value).upper()
+
+
 def _is_valid_device_id(device_id: str) -> bool:
-    """Phileo/Oxeo IDs sind die WLAN-MAC ohne Trennzeichen (12 Hex-Zeichen)."""
+    """Phileo/Oxeo IDs muessen 12 Hex-Zeichen sein (WLAN-MAC, normalisiert)."""
     if not device_id or len(device_id) != 12:
         return False
     try:
@@ -104,8 +119,8 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             name = (user_input.get(CONF_NAME) or "").strip() or DEFAULT_NAME
             host = (user_input.get(CONF_HOST) or "").strip()
             port = user_input.get(CONF_PORT, MQTT_DEFAULT_PORT)
-            phileo_id = (user_input.get(CONF_PHILEO_ID) or "").strip()
-            oxeo_id = (user_input.get(CONF_OXEO_ID) or "").strip()
+            phileo_id = _normalize_device_id(user_input.get(CONF_PHILEO_ID))
+            oxeo_id = _normalize_device_id(user_input.get(CONF_OXEO_ID))
             cloud_enabled = bool(user_input.get(CONF_CLOUD_ENABLED))
             email = (user_input.get(CONF_EMAIL) or "").strip()
             password = user_input.get(CONF_PASSWORD) or ""
@@ -211,8 +226,8 @@ class OrpheoVPOptionsFlow(config_entries.OptionsFlow):
                     data={
                         CONF_HOST: host,
                         CONF_PORT: port,
-                        CONF_PHILEO_ID: (user_input.get(CONF_PHILEO_ID) or "").strip(),
-                        CONF_OXEO_ID: (user_input.get(CONF_OXEO_ID) or "").strip(),
+                        CONF_PHILEO_ID: _normalize_device_id(user_input.get(CONF_PHILEO_ID)),
+                        CONF_OXEO_ID: _normalize_device_id(user_input.get(CONF_OXEO_ID)),
                         CONF_CLOUD_ENABLED: bool(user_input.get(CONF_CLOUD_ENABLED)),
                         CONF_EMAIL: (user_input.get(CONF_EMAIL) or "").strip(),
                         CONF_PASSWORD: user_input.get(CONF_PASSWORD) or "",

@@ -1,7 +1,7 @@
 {
   "domain": "tomtut_pool_dosing_vigipool",
   "name": "TomTuT Pool Dosing Vigipool",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "config_flow": true,
   "documentation": "https://github.com/TomTuTHub/tomtut-pool-dosing-vigipool",
   "issue_tracker": "https://github.com/TomTuTHub/tomtut-pool-dosing-vigipool/issues",
