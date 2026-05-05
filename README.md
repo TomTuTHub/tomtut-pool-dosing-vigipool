@@ -108,3 +108,15 @@ Contributions are welcome!
 2. Create a feature branch
 3. Commit with a clear message
 4. Open a Pull Request
+
+---
+
+## License
+
+MIT
+
+---
+
+## Transparency
+
+I'm a trained IT systems specialist with many years of experience. I use **Claude** and **ChatGPT** as development assistants when building these integrations. The code runs in my own production Home Assistant environment.
