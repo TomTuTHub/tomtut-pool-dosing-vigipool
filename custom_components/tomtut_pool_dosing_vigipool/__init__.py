@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Optional
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -39,9 +41,27 @@ PLATFORMS = [
     Platform.SWITCH,
 ]
 
+STATIC_URL_PATH = "/api/tomtut_pool_dosing_vigipool/static"
+STATIC_REGISTRATION_KEY = "static_path_registered"
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Orpheo VP from a config entry."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+
+    if not domain_data.get(STATIC_REGISTRATION_KEY):
+        static_dir = Path(__file__).parent / "static"
+        await hass.http.async_register_static_paths(
+            [
+                StaticPathConfig(
+                    STATIC_URL_PATH,
+                    str(static_dir),
+                    cache_headers=False,
+                ),
+            ]
+        )
+        domain_data[STATIC_REGISTRATION_KEY] = True
+
     # OptionsFlow-Werte haben Vorrang vor initialen data-Werten
     def _cfg(key: str, default):
         return entry.options.get(key, entry.data.get(key, default))
