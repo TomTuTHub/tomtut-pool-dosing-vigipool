@@ -1,14 +1,16 @@
 {
   "domain": "tomtut_pool_dosing_vigipool",
   "name": "TomTuT Pool Dosing Vigipool",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "config_flow": true,
   "documentation": "https://github.com/TomTuTHub/tomtut-pool-dosing-vigipool",
   "issue_tracker": "https://github.com/TomTuTHub/tomtut-pool-dosing-vigipool/issues",
   "requirements": [
     "paho-mqtt>=1.6.1"
   ],
-  "dependencies": [],
+  "dependencies": [
+    "http"
+  ],
   "codeowners": [
     "@TomTuTHub"
   ],
