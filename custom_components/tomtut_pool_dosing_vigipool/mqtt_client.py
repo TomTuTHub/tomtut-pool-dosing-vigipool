@@ -29,6 +29,17 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _split_subtype(s) -> tuple[str, str]:
+    """Return (read_subtype, write_subtype). When the points table uses a
+    single string, both are the same. When it uses a 2-tuple the device
+    publishes its current value on a different subtype than it accepts
+    writes on (observed for `consigne_ph` on the Phileo VP: writes on
+    `consigne/desired`, current value echoed back on `info/reported`)."""
+    if isinstance(s, tuple):
+        return s[0], s[1]
+    return s, s
+
+
 class OrpheoMqttClient:
     """Thread-basierter paho-mqtt Client mit async-Bridge."""
 
@@ -39,6 +50,7 @@ class OrpheoMqttClient:
         port: int,
         phileo_id: str,
         oxeo_id: str,
+        instance_suffix: str = "",
     ) -> None:
         self.hass = hass
         self._host = host
@@ -51,8 +63,17 @@ class OrpheoMqttClient:
         self._last_message_ts: float = 0.0
         self._connected: bool = False
 
+        # MQTT broker (= Phileo VP itself) enforces uniqueness on client_id:
+        # a second client with the same ID kicks the first off. When multiple
+        # HA instances point at the same device (prod + dev1 + dev2, or two
+        # users with the same hardware), a deterministic id derived only from
+        # the device MAC causes an endless reconnect loop. Mix in the HA
+        # instance UUID so each HA gets its own slot.
+        cid = f"ha_orpheo_vp_{phileo_id[-6:]}"
+        if instance_suffix:
+            cid = f"{cid}_{instance_suffix}"
         self._client = mqtt.Client(
-            client_id=f"ha_orpheo_vp_{phileo_id[-6:]}",
+            client_id=cid,
             clean_session=True,
         )
         self._client.on_connect = self._on_connect
@@ -132,7 +153,8 @@ class OrpheoMqttClient:
 
         short_name = None
         for key, (kt, kn, ks, _scale, _w) in points.items():
-            if kt == dtype and kn == name and ks == subtype:
+            read_sub, _write_sub = _split_subtype(ks)
+            if kt == dtype and kn == name and read_sub == subtype:
                 short_name = key
                 break
         if short_name is None:
@@ -211,7 +233,8 @@ class OrpheoMqttClient:
             return False
 
         raw = int(round(value * scale)) if scale else int(round(value))
-        topic = topic_fn(device_id, dtype, name, subtype, "desired")
+        _read_sub, write_sub = _split_subtype(subtype)
+        topic = topic_fn(device_id, dtype, name, write_sub, "desired")
         payload = str(raw)
 
         def _publish() -> bool:

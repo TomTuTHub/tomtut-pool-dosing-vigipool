@@ -82,10 +82,16 @@ def oxeo_sub_filter(device_id: str) -> str:
 # `scale` ist der Faktor, um den der Rohwert beim Lesen geteilt wird
 # (bzw. beim Schreiben multipliziert).
 
-# scale = None bedeutet "kein Scaling" (Rohwert 1:1)
-PHILEO_POINTS: dict[str, tuple[str, str, str, float | None, bool]] = {
+# scale = None bedeutet "kein Scaling" (Rohwert 1:1).
+# subtype: str fuer identische Read/Write-Subtypes; tuple[str,str] fuer
+# asymmetrische — (read_subtype, write_subtype). Hintergrund siehe
+# `_split_subtype` in mqtt_client.py.
+PHILEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bool]] = {
     "ph":                 ("u16_r", "value_ph",              "value",    100.0, False),
-    "ph_setpoint":        ("u16_w", "consigne_ph",           "consigne", 100.0, True),
+    # consigne_ph: Geraet echo't den Live-Wert auf `info/reported`, nicht auf
+    # `consigne/reported` (das traegt einen stehengebliebenen Absolutwert).
+    # Schreibwege gehen weiterhin auf `consigne/desired`.
+    "ph_setpoint":        ("u16_w", "consigne_ph",           ("info", "consigne"), 100.0, True),
     "ph_inject_on":       ("u8_r",  "inject_on",             "value",    None,  False),
     "ph_flow_on":         ("u8_r",  "flow_on",               "value",    None,  False),
     "ph_vol_24h":         ("u16_r", "vol_24h_inject",        "value",    100.0, False),
@@ -102,7 +108,7 @@ PHILEO_POINTS: dict[str, tuple[str, str, str, float | None, bool]] = {
     "ph_sw_vers":         ("u16_r", "sw_vers",               "info",     None,  False),
 }
 
-OXEO_POINTS: dict[str, tuple[str, str, str, float | None, bool]] = {
+OXEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bool]] = {
     "orp":                ("u16_r", "value_orp",             "value",    None,  False),
     "orp_setpoint":       ("u16_w", "consigne_orp",          "consigne", None,  True),
     "orp_inject_on":      ("u8_r",  "inject_on",             "value",    None,  False),

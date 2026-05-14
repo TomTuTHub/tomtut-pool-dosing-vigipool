@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.instance_id import async_get as async_get_instance_id
 
 from .cloud_api import OrpheoVPApi
 from .const import (
@@ -72,7 +73,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     phileo_id = _cfg(CONF_PHILEO_ID, DEFAULT_PHILEO_ID)
     oxeo_id = _cfg(CONF_OXEO_ID, DEFAULT_OXEO_ID)
 
-    mqtt_client = OrpheoMqttClient(hass, host, port, phileo_id, oxeo_id)
+    instance_id = await async_get_instance_id(hass)
+    mqtt_client = OrpheoMqttClient(
+        hass, host, port, phileo_id, oxeo_id,
+        instance_suffix=instance_id[:8],
+    )
 
     cloud_api: Optional[OrpheoVPApi] = None
     cloud_pool_id: Optional[str] = None
