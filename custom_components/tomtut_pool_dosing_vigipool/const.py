@@ -110,7 +110,9 @@ PHILEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bo
 
 OXEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bool]] = {
     "orp":                ("u16_r", "value_orp",             "value",    None,  False),
-    "orp_setpoint":       ("u16_w", "consigne_orp",          "consigne", None,  True),
+    # consigne_orp: gleiches Muster wie consigne_ph — Echo auf `info/reported`,
+    # Schreiben auf `consigne/desired`. Live verifiziert via MQTT-Probe 2026-05-14.
+    "orp_setpoint":       ("u16_w", "consigne_orp",          ("info", "consigne"), None, True),
     "orp_inject_on":      ("u8_r",  "inject_on",             "value",    None,  False),
     "orp_vol_24h":        ("u16_r", "vol_24h_inject",        "value",    100.0, False),
     "orp_vol_total":      ("u16_r", "vol_tot_inject",        "value",    100.0, False),
