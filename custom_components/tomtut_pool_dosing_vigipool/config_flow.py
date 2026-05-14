@@ -1,4 +1,4 @@
-"""Config flow for Orpheo VP integration."""
+"""Config flow for Orpheo VP integration — lokal-only, keine Cloud-Felder."""
 from __future__ import annotations
 
 import ipaddress
@@ -7,23 +7,16 @@ import re
 import socket
 from typing import Any
 
-import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .cloud_api import OrpheoVPApi, VigiPoolApiError, VigiPoolAuthError
 from .const import (
-    CONF_CLOUD_ENABLED,
-    CONF_EMAIL,
     CONF_HOST,
     CONF_NAME,
     CONF_OXEO_ID,
-    CONF_PASSWORD,
     CONF_PHILEO_ID,
-    CONF_POOL_ID,
     CONF_PORT,
     DEFAULT_HOST,
     DEFAULT_NAME,
@@ -41,19 +34,13 @@ def _step_user_schema(
     name: str = DEFAULT_NAME,
     host: str = DEFAULT_HOST,
     port: int = MQTT_DEFAULT_PORT,
-    cloud_enabled: bool = False,
-    email: str = "",
-    password: str = "",
 ) -> vol.Schema:
-    """First step: connection + optional cloud credentials only."""
+    """First step: Name + Verbindung (Host, Port). Keine Cloud-Felder."""
     return vol.Schema(
         {
             vol.Required(CONF_NAME, default=name): str,
             vol.Required(CONF_HOST, default=host): str,
             vol.Required(CONF_PORT, default=port): int,
-            vol.Optional(CONF_CLOUD_ENABLED, default=cloud_enabled): bool,
-            vol.Optional(CONF_EMAIL, default=email): str,
-            vol.Optional(CONF_PASSWORD, default=password): str,
         }
     )
 
@@ -69,10 +56,7 @@ def _step_devices_schema(phileo_id: str = "", oxeo_id: str = "") -> vol.Schema:
 
 
 def _normalize_device_id(value: str | None) -> str:
-    """MAC mit oder ohne Trennzeichen → 12 Hex-Zeichen uppercase.
-
-    Akzeptierte Trennzeichen: `:`, `-`, `.`, Leerzeichen.
-    """
+    """MAC mit oder ohne Trennzeichen → 12 Hex-Zeichen uppercase."""
     if not value:
         return ""
     return re.sub(r"[\s:.\-]", "", value).upper()
@@ -111,7 +95,7 @@ def _test_mqtt_port(host: str, port: int) -> bool:
 class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Two-step config flow: connection + auto-discovered device IDs."""
 
-    VERSION = 3
+    VERSION = 4
 
     def __init__(self) -> None:
         self._user_data: dict[str, Any] = {}
@@ -125,9 +109,6 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             name = (user_input.get(CONF_NAME) or "").strip() or DEFAULT_NAME
             host = (user_input.get(CONF_HOST) or "").strip()
             port = user_input.get(CONF_PORT, MQTT_DEFAULT_PORT)
-            cloud_enabled = bool(user_input.get(CONF_CLOUD_ENABLED))
-            email = (user_input.get(CONF_EMAIL) or "").strip()
-            password = user_input.get(CONF_PASSWORD) or ""
 
             if not host or not _is_valid_host(host):
                 errors["base"] = "invalid_ip"
@@ -137,44 +118,17 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if not reachable:
                     errors["base"] = "cannot_connect"
 
-            cloud_pool_id: str | None = None
-            if not errors and cloud_enabled:
-                if not email or not password:
-                    errors["base"] = "cloud_credentials_required"
-                else:
-                    session = async_get_clientsession(self.hass)
-                    api = OrpheoVPApi(session, email, password)
-                    try:
-                        await api.login()
-                        cloud_pool_id = await api.get_pool_id()
-                    except VigiPoolAuthError:
-                        errors["base"] = "invalid_auth"
-                    except (VigiPoolApiError, aiohttp.ClientError) as err:
-                        _LOGGER.error("Cloud check failed: %s", err)
-                        errors["base"] = "cannot_connect"
-
             if not errors:
                 self._user_data = {
                     CONF_NAME: name,
                     CONF_HOST: host,
                     CONF_PORT: port,
-                    CONF_CLOUD_ENABLED: cloud_enabled,
-                    CONF_EMAIL: email,
-                    CONF_PASSWORD: password,
-                    CONF_POOL_ID: cloud_pool_id,
                 }
                 return await self.async_step_devices()
 
             return self.async_show_form(
                 step_id="user",
-                data_schema=_step_user_schema(
-                    name=name,
-                    host=host or DEFAULT_HOST,
-                    port=port,
-                    cloud_enabled=cloud_enabled,
-                    email=email,
-                    password=password,
-                ),
+                data_schema=_step_user_schema(name=name, host=host or DEFAULT_HOST, port=port),
                 errors=errors,
             )
 
@@ -235,20 +189,16 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(phileo_id)
         self._abort_if_unique_id_configured()
 
-        data: dict[str, Any] = {
-            CONF_NAME: self._user_data[CONF_NAME],
-            CONF_HOST: host,
-            CONF_PORT: port,
-            CONF_PHILEO_ID: phileo_id,
-            CONF_OXEO_ID: oxeo_id,
-            CONF_CLOUD_ENABLED: self._user_data[CONF_CLOUD_ENABLED],
-        }
-        if self._user_data[CONF_CLOUD_ENABLED]:
-            data[CONF_EMAIL] = self._user_data[CONF_EMAIL]
-            data[CONF_PASSWORD] = self._user_data[CONF_PASSWORD]
-            data[CONF_POOL_ID] = self._user_data.get(CONF_POOL_ID) or phileo_id
-
-        return self.async_create_entry(title=self._user_data[CONF_NAME], data=data)
+        return self.async_create_entry(
+            title=self._user_data[CONF_NAME],
+            data={
+                CONF_NAME: self._user_data[CONF_NAME],
+                CONF_HOST: host,
+                CONF_PORT: port,
+                CONF_PHILEO_ID: phileo_id,
+                CONF_OXEO_ID: oxeo_id,
+            },
+        )
 
     @staticmethod
     @callback
@@ -257,7 +207,7 @@ class OrpheoVPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OrpheoVPOptionsFlow(config_entries.OptionsFlow):
-    """Reconfigure host, device-IDs and cloud credentials."""
+    """Reconfigure host, port and device-IDs (lokal-only)."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -287,9 +237,6 @@ class OrpheoVPOptionsFlow(config_entries.OptionsFlow):
                         CONF_PORT: port,
                         CONF_PHILEO_ID: _normalize_device_id(user_input.get(CONF_PHILEO_ID)),
                         CONF_OXEO_ID: _normalize_device_id(user_input.get(CONF_OXEO_ID)),
-                        CONF_CLOUD_ENABLED: bool(user_input.get(CONF_CLOUD_ENABLED)),
-                        CONF_EMAIL: (user_input.get(CONF_EMAIL) or "").strip(),
-                        CONF_PASSWORD: user_input.get(CONF_PASSWORD) or "",
                     },
                 )
 
@@ -299,9 +246,6 @@ class OrpheoVPOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(CONF_PORT, default=_current(CONF_PORT, MQTT_DEFAULT_PORT)): int,
                 vol.Required(CONF_PHILEO_ID, default=_current(CONF_PHILEO_ID, DEFAULT_PHILEO_ID)): str,
                 vol.Required(CONF_OXEO_ID, default=_current(CONF_OXEO_ID, DEFAULT_OXEO_ID)): str,
-                vol.Optional(CONF_CLOUD_ENABLED, default=_current(CONF_CLOUD_ENABLED, False)): bool,
-                vol.Optional(CONF_EMAIL, default=_current(CONF_EMAIL, "")): str,
-                vol.Optional(CONF_PASSWORD, default=_current(CONF_PASSWORD, "")): str,
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

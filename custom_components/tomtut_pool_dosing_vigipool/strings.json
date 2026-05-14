@@ -3,14 +3,11 @@
     "step": {
       "user": {
         "title": "TomTuT Pool Dosing Vigipool — Verbindung",
-        "description": "Name und IP-Adresse der Phileo VP (sie ist gleichzeitig der MQTT-Broker). Cloud-Fallback ist optional und wird nur genutzt wenn die lokale MQTT-Verbindung laenger als 5 Minuten keine Daten liefert.",
+        "description": "Name und IP-Adresse der Phileo VP (sie ist gleichzeitig der MQTT-Broker). Diese Integration arbeitet ausschließlich lokal — keine Hersteller-Cloud, keine externen Server.",
         "data": {
           "name": "Name der Dosieranlage",
           "host": "IP-Adresse der Phileo VP",
-          "port": "MQTT-Port",
-          "cloud_enabled": "Cloud-Fallback aktivieren",
-          "email": "Vigipool E-Mail (optional)",
-          "password": "Vigipool Passwort (optional)"
+          "port": "MQTT-Port"
         }
       },
       "devices": {
@@ -25,9 +22,7 @@
     "error": {
       "invalid_ip": "Ungueltige IP-Adresse",
       "invalid_device_id": "Ungueltige Device-ID — erwartet: 12 Hex-Zeichen (WLAN-MAC). Trennzeichen `:` `-` `.` und Leerzeichen werden automatisch entfernt. Beispiele: 08D1F9976534, 08:D1:F9:97:65:34, 08-d1-f9-97-65-34",
-      "invalid_auth": "Ungueltige Cloud-Anmeldedaten",
-      "cannot_connect": "Verbindung fehlgeschlagen (MQTT oder Cloud nicht erreichbar)",
-      "cloud_credentials_required": "Cloud-Fallback aktiviert — bitte E-Mail und Passwort angeben"
+      "cannot_connect": "Anlage nicht erreichbar (MQTT-Port unter angegebener IP/Port nicht antwortend)"
     },
     "abort": {
       "already_configured": "Geraet ist bereits konfiguriert"
@@ -37,21 +32,18 @@
     "step": {
       "init": {
         "title": "TomTuT Pool Dosing Vigipool — Einstellungen",
-        "description": "IP-Adresse, MQTT-Port, Device-IDs und Cloud-Fallback aendern.",
+        "description": "IP-Adresse, MQTT-Port und Device-IDs aendern.",
         "data": {
           "host": "IP-Adresse",
           "port": "MQTT-Port",
           "phileo_id": "Phileo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
-          "oxeo_id": "Oxeo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)",
-          "cloud_enabled": "Cloud-Fallback aktivieren",
-          "email": "Vigipool E-Mail",
-          "password": "Vigipool Passwort"
+          "oxeo_id": "Oxeo VP Device-ID (WLAN-MAC, mit oder ohne Trennzeichen)"
         }
       }
     },
     "error": {
       "invalid_ip": "Ungueltige IP-Adresse",
-      "cannot_connect": "Verbindung fehlgeschlagen"
+      "cannot_connect": "Anlage nicht erreichbar"
     }
   }
 }

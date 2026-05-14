@@ -1,16 +1,13 @@
-"""Constants for the Orpheo VP integration."""
+"""Constants for the Orpheo VP integration (lokales MQTT, kein Cloud-Pfad)."""
 
 DOMAIN = "tomtut_pool_dosing_vigipool"
 
-# Cloud API (Fallback)
-BASE_URL = "https://supervision.vigipool.com"
-LOGIN_URL = f"{BASE_URL}/account_login"
-DASHBOARD_URL = f"{BASE_URL}/dashboard"
-POOL_DETAIL_URL = f"{BASE_URL}/pool_detail"
-
-# Polling intervals
-SCAN_INTERVAL = 120                 # Cloud fallback poll interval (s)
-MQTT_STALE_AFTER = 300              # MQTT-Daten gelten nach X s als veraltet
+# Polling / Health-Intervalle
+SCAN_INTERVAL = 30                  # Coordinator-Heartbeat (s): erkennt
+                                    # MQTT-Disconnect innerhalb von ~30s.
+MQTT_KEEPALIVE = 15                 # paho-mqtt Keepalive (s): Anlage als
+                                    # offline markieren wenn 3 Keepalives
+                                    # ohne PINGRESP — also ~45s.
 MQTT_DEFAULT_PORT = 1883
 
 # Config entry keys
@@ -19,10 +16,6 @@ CONF_PORT = "port"
 CONF_NAME = "name"
 CONF_PHILEO_ID = "phileo_id"
 CONF_OXEO_ID = "oxeo_id"
-CONF_CLOUD_ENABLED = "cloud_enabled"
-CONF_EMAIL = "email"
-CONF_PASSWORD = "password"
-CONF_POOL_ID = "pool_id"
 
 # Defaults — nur generisch. Geraetespezifische Werte (IP, MACs) muss der
 # User selbst eintragen, damit die Integration HACS-tauglich bleibt.
@@ -31,7 +24,7 @@ DEFAULT_HOST = ""
 DEFAULT_PHILEO_ID = ""
 DEFAULT_OXEO_ID = ""
 
-# Data attributes (Cloud-API Legacy)
+# MQTT-Attribute-Namen
 ATTR_ORP = "value_orp"
 ATTR_PH = "value_ph"
 ATTR_INJECT_ON = "inject_on"

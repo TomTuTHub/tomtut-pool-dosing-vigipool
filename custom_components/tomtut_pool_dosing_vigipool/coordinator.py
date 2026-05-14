@@ -1,11 +1,15 @@
-"""DataUpdateCoordinator fuer Orpheo VP.
+"""DataUpdateCoordinator fuer Orpheo VP — ausschließlich lokales MQTT.
 
-Primaer: MQTT push (Geraet = Broker, IP konfigurierbar).
-Fallback: Cloud-Polling auf supervision.vigipool.com wenn MQTT-Daten veraltet sind.
+Verhalten:
+- MQTT-Push (`_handle_mqtt_push`) → `async_set_updated_data` → `last_update_success = True`
+- Periodischer Heartbeat (`_async_update_data`) prüft `mqtt.connected`. Wenn die
+  TCP-Connection zur Anlage tot ist, wird `UpdateFailed` geworfen → Coordinator
+  setzt `last_update_success = False` → alle CoordinatorEntity sind `unavailable`.
+- Auf Anlagen-Seite genügt das, weil die Anlage selbst der MQTT-Broker ist:
+  TCP-Connection lebt = Anlage erreichbar; TCP-Connection tot = Anlage offline.
 """
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
@@ -15,8 +19,7 @@ from typing import Optional
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .cloud_api import OrpheoVPApi, PoolData as CloudPoolData, VigiPoolApiError, VigiPoolAuthError
-from .const import DEFAULT_NAME, DOMAIN, MQTT_STALE_AFTER, OXEO_POINTS, PHILEO_POINTS, SCAN_INTERVAL
+from .const import DEFAULT_NAME, DOMAIN, OXEO_POINTS, PHILEO_POINTS, SCAN_INTERVAL
 from .mqtt_client import OrpheoMqttClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,7 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 class OrpheoData:
     """Zusammengefuehrte Sicht auf alle Datenpunkte."""
 
-    source: str = "init"                # "mqtt", "cloud", "init"
+    source: str = "init"                # "mqtt" oder "init"
     values: dict[str, float] = field(default_factory=dict)
     last_mqtt_ts: float = 0.0
 
@@ -35,14 +38,12 @@ class OrpheoData:
 
 
 class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
-    """Haelt MQTT + Cloud-Fallback zusammen."""
+    """Lokaler MQTT-Coordinator. Keine Cloud."""
 
     def __init__(
         self,
         hass: HomeAssistant,
         mqtt_client: OrpheoMqttClient,
-        cloud_api: Optional[OrpheoVPApi],
-        cloud_pool_id: Optional[str],
     ) -> None:
         super().__init__(
             hass,
@@ -51,19 +52,16 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
             update_interval=timedelta(seconds=SCAN_INTERVAL),
         )
         self.mqtt = mqtt_client
-        self._cloud_api = cloud_api
-        self._cloud_pool_id = cloud_pool_id
-        self._cloud_session_valid = False
         self.device_name: str = DEFAULT_NAME
 
         mqtt_client.set_update_callback(self._mqtt_push_callback)
 
     # ------------------------------------------------------------------
-    # MQTT push -> Coordinator
+    # MQTT push → Coordinator
     # ------------------------------------------------------------------
 
     def _mqtt_push_callback(self) -> None:
-        """Wird aus dem paho-Thread aufgerufen. Thread-safe via call_soon_threadsafe."""
+        """Aus dem paho-Thread. Thread-safe via call_soon_threadsafe."""
         if self.hass.loop.is_closed():
             return
         self.hass.loop.call_soon_threadsafe(self._handle_mqtt_push)
@@ -89,51 +87,32 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
         )
 
     # ------------------------------------------------------------------
-    # Periodic poll (Cloud-Fallback)
+    # Heartbeat: erkennt MQTT-Disconnect zur Anlage
     # ------------------------------------------------------------------
 
     async def _async_update_data(self) -> OrpheoData:
-        # 1. Wenn MQTT frisch: MQTT-Snapshot liefern.
-        now = time.time()
-        mqtt_age = now - self.mqtt.last_message_ts if self.mqtt.last_message_ts else float("inf")
+        # Wenn der lokale Broker (= Anlage) per paho-mqtt nicht verbunden ist,
+        # gilt die Anlage als offline → UpdateFailed → Entities werden unavailable.
+        if not self.mqtt.connected:
+            age = (
+                time.time() - self.mqtt.last_message_ts
+                if self.mqtt.last_message_ts
+                else float("inf")
+            )
+            raise UpdateFailed(
+                f"Anlage nicht erreichbar (MQTT disconnected, letzte Nachricht vor {age:.0f}s)"
+            )
 
-        if self.mqtt.has_any_data() and mqtt_age < MQTT_STALE_AFTER:
-            data = self._build_from_mqtt()
-            if data is not None:
-                return data
+        # Verbindung steht → Snapshot aus dem MQTT-Cache liefern. Auch wenn die
+        # Anlage seit Stunden keine neuen Werte publisht (sie publisht nur bei
+        # Änderung), bleibt der Zustand verfügbar: TCP-Connection lebt =
+        # Anlage erreichbar.
+        data = self._build_from_mqtt()
+        if data is not None:
+            return data
 
-        # 2. MQTT ist stale oder leer -> Cloud-Fallback versuchen.
-        if self._cloud_api is None or self._cloud_pool_id is None:
-            # Kein Cloud-Fallback konfiguriert — vorhandene Daten beibehalten
-            if self.data is not None:
-                _LOGGER.debug("MQTT stale (age=%.0fs) — kein Cloud-Fallback, alten State halten", mqtt_age)
-                return self.data
-            raise UpdateFailed("Keine MQTT-Daten und kein Cloud-Fallback konfiguriert")
-
-        try:
-            if not self._cloud_session_valid:
-                await self._cloud_api.login()
-                self._cloud_session_valid = True
-            cloud_data: CloudPoolData = await self._cloud_api.get_pool_data(self._cloud_pool_id)
-        except VigiPoolAuthError:
-            self._cloud_session_valid = False
-            raise UpdateFailed("Vigipool-Session abgelaufen")
-        except VigiPoolApiError as err:
-            raise UpdateFailed(f"Vigipool API error: {err}") from err
-
-        # Cloud -> OrpheoData mappen
-        values: dict[str, float] = {}
-        if cloud_data.ph is not None:
-            values["ph"] = cloud_data.ph
-        if cloud_data.orp is not None:
-            values["orp"] = cloud_data.orp
-        if cloud_data.ph_inject_on is not None:
-            values["ph_inject_on"] = 1.0 if cloud_data.ph_inject_on else 0.0
-        if cloud_data.orp_inject_on is not None:
-            values["orp_inject_on"] = 1.0 if cloud_data.orp_inject_on else 0.0
-        if cloud_data.ph_setpoint is not None:
-            values["ph_setpoint"] = cloud_data.ph_setpoint
-        if cloud_data.orp_setpoint is not None:
-            values["orp_setpoint"] = cloud_data.orp_setpoint
-
-        return OrpheoData(source="cloud", values=values, last_mqtt_ts=self.mqtt.last_message_ts)
+        # Verbunden, aber noch nie Daten empfangen (frischer Start) — vorhandenen
+        # State beibehalten, kein UpdateFailed werfen.
+        if self.data is not None:
+            return self.data
+        raise UpdateFailed("Verbunden, aber noch keine MQTT-Daten empfangen")

@@ -16,6 +16,7 @@ import paho.mqtt.client as mqtt
 
 from .const import (
     MQTT_DEFAULT_PORT,
+    MQTT_KEEPALIVE,
     OXEO_POINTS,
     OXEO_PREFIX,
     PHILEO_POINTS,
@@ -100,7 +101,7 @@ class OrpheoMqttClient:
 
     def _connect(self) -> None:
         _LOGGER.info("Verbinde mit Orpheo-Broker %s:%s", self._host, self._port)
-        self._client.connect(self._host, self._port, keepalive=60)
+        self._client.connect(self._host, self._port, keepalive=MQTT_KEEPALIVE)
         self._client.loop_start()
 
     def _disconnect(self) -> None:
