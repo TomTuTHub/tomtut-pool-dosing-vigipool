@@ -2,7 +2,8 @@
 
 Community Home Assistant integration for **Vigipool Orpheo VP** pool dosing systems (Phileo VP + Oxeo VP) via **local MQTT** (LAN). Local-only — no cloud account, no external server.
 
-➡️ **More info & guides (German):** https://www.tomtut.de/vigipool
+- 🌐 **Übersicht zu Vigipool (alle Beiträge, deutsch):** https://www.tomtut.de/vigipool
+- 📖 **Diese Integration — Schritt-für-Schritt-Anleitung mit Video (deutsch):** https://www.tomtut.de/tomtut-pool-dosieranlage-homeassistant-vigipool-integration/
 
 ---
 
@@ -129,7 +130,7 @@ Please open a **GitHub Issue** in this repository and include:
 - Device model (Vigipool Orpheo VP / CCEI / Poolsana)
 - Relevant logs (**Settings → System → Logs**)
 - Steps to reproduce (what you did, what you expected, what happened)
-- Did you watch the Blogarticle / YouTube video at https://www.tomtut.de/vigipool ?
+- Did you watch the Blogarticle / YouTube video at https://www.tomtut.de/tomtut-pool-dosieranlage-homeassistant-vigipool-integration/ ?
 
 ---
 
