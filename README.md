@@ -112,6 +112,18 @@ Separators (`:`, `-`, `.`, spaces) are stripped automatically.
 
 ---
 
+## Praxis-Tipp: Morgendliches Überdosieren verhindern
+
+Nach der nächtlichen Standzeit misst die Sonde zunächst das abgestandene Wasser in der Rohrleitung — der Redox-Wert ist dort niedriger als im Pool, und die Anlage dosiert die ersten Minuten „gegen einen falschen Wert" (fest verdrahtet: 2 Minuten Wartezeit nach Flow-Erkennung, dann Dauerdosierung — eine einstellbare Verzögerung gibt es nicht).
+
+**Die Lösung mit dieser Integration:** Der **Winter-Modus** stoppt laut Hersteller-Anleitung (Kap. 6.1) jede Einspritzung, misst aber weiter. Als Automation in Home Assistant:
+
+1. Filterpumpe startet → `switch.…_winter_modus` **einschalten**
+2. 20–30 Minuten warten (frisches Poolwasser umspült die Sonde)
+3. Winter-Modus **ausschalten** → die Anlage regelt ab jetzt auf Basis eines echten Messwerts
+
+Vorteile gegenüber einer geschalteten Steckdose: kein Reset des 24-h-Dosierzählers, kein Eingriff in die Stromversorgung.
+
 ## Woher kommen die Fehlercode-Texte?
 
 Die Anlage meldet Fehler als **u32-Bitmaske** auf dem MQTT-Topic `.../error/info/reported`.
@@ -179,6 +191,10 @@ Contributions are welcome!
 4. Open a Pull Request
 
 ---
+
+## Danke an die Poolheld-Community
+
+Diese Integration wird durch euch besser: sauber recherchierte Issues, Logs, Pull Requests und Praxis-Berichte aus echten Pool-Setups sind der Grund, warum hier in kurzer Zeit mehrere Releases mit echten Verbesserungen entstanden sind. Besonderer Dank an [@MeierAlex](https://github.com/MeierAlex) (Dosiermengen-Fix in v2.4.4) und [@Cocoon169](https://github.com/Cocoon169) (Verbindungs-Analyse für v2.4.5). Weiter so — jede fundierte Meldung hilft allen.
 
 ## License
 
