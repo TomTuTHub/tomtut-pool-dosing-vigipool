@@ -29,6 +29,76 @@ SENTINEL_RAW_VALUES = frozenset({0xFFFE, 0xFFFF})   # 65534, 65535
 # Behaeltergroesse oder Firmware-Version (dort sind hohe Werte legitim).
 SENTINEL_FILTER_KEYS = frozenset({"ph", "orp"})
 
+# ---------------------------------------------------------------------------
+# Fehlercode-Bitmaske -> Klartext (v2.4.6)
+#
+# Die Anlage publiziert auf .../error/info/reported eine u32-Bitmaske. Die
+# Bedeutung EINZELNER Bits ist bewusst konservativ gemappt: nur was belegt
+# ist, bekommt Text - alle anderen Bits bleiben als "Bit N" sichtbar (nie
+# verschlucken).
+#
+# HERKUNFT DER ZUORDNUNG (Doku-Pflicht, Thomas 2026-07-14):
+# - Bit 31 (0x80000000) = "Tagesmaximaldosis erreicht":
+#   * EMPIRISCH BEWIESEN an Thomas' Anlage 2026-07-14: pH-Fehlercode
+#     2147483648 exakt zeitgleich mit App-Push "E24" + Pumpe ausser Betrieb
+#     (HA-Aktivitaet 09:04:53). Gilt fuer beide Kanaele (ORP-Fehlercode
+#     2147483648 ebenfalls in den HA-Exportdaten beobachtet).
+#   * Text nach CCEI-Key V_MAX_INJECTED ("Das Maximalvolumen des injizierten
+#     Produkts wurde erreicht" / EN "Max volume of injected product in 24h
+#     reached"). Quelle: github.com/developer-ccei-pool/jeedom-vigipool
+#     @ 51d6d5c9 (2024-08-09), core/template/js/language_german.js:398,
+#     abgerufen 2026-07-14.
+#
+# WEITERE CCEI-FEHLERTEXTE (Referenz, bewusst NICHT bit-gebunden): der
+# CCEI-Code dekodiert die Bitmaske NICHT client-seitig - die E-Codes kommen
+# als Cloud-Push, die Bit-Positionen sind unbelegt. Daher hier nur als
+# dokumentierte Referenz (Quelle jeweils language_german.js @ 51d6d5c9),
+# bis eine Zuordnung empirisch bestaetigt ist:
+#   PH_ERROR_MESURE_29 (Z.399) "Es werden Fehler bei den pH-Messungen
+#     festgestellt, die Injektion wird gestoppt, bitte ueberpruefen Sie Ihre
+#     Anlage und die Sonden."
+#   ORP_ERROR_MESURE_27 (Z.401) analog fuer ORP-Messungen.
+#   RS485_ERROR / code_E9 (Z.407) "... Kommunikationsfehler (RS485) ..."
+#   TEMP_HIGH (Z.385) / TEMP_LOW (Z.386) Temperatur-Messfehler.
+# Beobachtet, Bedeutung unbelegt: ORP-Bit 24 (0x01000000), Mai/Juni 2026.
+# ---------------------------------------------------------------------------
+ERROR_MAX_DOSE_BIT = 31  # V_MAX_INJECTED / E24 - Tagesmaximaldosis (bewiesen)
+
+ERROR_BIT_TEXTS: dict[int, str] = {
+    ERROR_MAX_DOSE_BIT: "Tagesmaximaldosis erreicht",
+}
+
+
+def format_error_bitmask(raw) -> str:
+    """u32-Fehler-Bitmaske -> lesbarer deutscher Text. Bekannte Bits als
+    Klartext, unbekannte Bits als 'Bit N' (nie verschlucken). 0 -> 'OK'."""
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return "unbekannt"
+    if value == 0:
+        return "OK"
+    parts: list[str] = []
+    for bit in range(32):
+        if value & (1 << bit):
+            parts.append(ERROR_BIT_TEXTS.get(bit, f"Bit {bit}"))
+    return ", ".join(parts)
+
+
+# Config-Werte (Behaeltergroesse, Maximaldosis/Tag) kommen vom Geraet in
+# kurzen Bursts von Zwischenwerten (empirisch: vol_bac springt
+# 26->30->36->44->48->57->60 in ~0,11 s, HA-Export 2026-05-14 14:53:41) -
+# App-Slider-/Streaming-Artefakte, KEIN Integrations-Bug (Topic/Subtype/Scale
+# sind identisch zu CCEIs Installer-Template daisyph.yaml/daisyox.yaml,
+# vol_bac/info, value_template *0.01). Darum werden diese Werte entprellt:
+# erst nach CONFIG_DEBOUNCE Sekunden Ruhe (kein neuer Wert) uebernimmt
+# settle_config() den zuletzt gesehenen Wert. Messwerte/Zaehler sind NICHT
+# betroffen.
+CONFIG_DEBOUNCE = 12  # s
+CONFIG_DEBOUNCE_KEYS = frozenset({
+    "ph_vol_bac", "orp_vol_bac", "ph_vol_max_24h", "orp_vol_max_24h",
+})
+
 # Config entry keys
 CONF_HOST = "host"
 CONF_PORT = "port"

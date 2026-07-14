@@ -22,6 +22,7 @@ Use at your own risk.
 - Sensors for **pH**, **Redox/ORP**, **flow**, **dosing pumps**, **daily/total injected volume**, **WiFi signal**, **firmware**, **errors**, plus live status of the device's manufacturer-cloud uplink (`mqtt_connected`)
 - Read/write entities for **setpoints** (pH, ORP), **container size**, **daily max dose**, **spa-mode**, **winter-mode**
 - **Restmenge tracking** (canister fill level) — auto-decrements based on injected volume, persists across restarts
+- **Readable error codes** (v2.4.6) — the raw error bitmask is additionally exposed as a human-readable German text sensor (`sensor.*_fehler`), plus a **"Tageslimit erreicht" binary sensor** per channel (daily max dose reached) for automations. Container-size / max-dose config values are **debounced** against device value bursts.
 - Companion **custom Lovelace card** available as a separate repository: [`tomtut-pool-dosing-vigipool-card`](https://github.com/TomTuTHub/tomtut-pool-dosing-vigipool-card) — with prominent offline banner when the device drops off
 
 ---
@@ -108,6 +109,36 @@ Since version 2.2.1 the integration accepts the IDs in any common formatting:
 ```
 
 Separators (`:`, `-`, `.`, spaces) are stripped automatically.
+
+---
+
+## Woher kommen die Fehlercode-Texte?
+
+Die Anlage meldet Fehler als **u32-Bitmaske** auf dem MQTT-Topic `.../error/info/reported`.
+Seit v2.4.6 gibt es je Kanal zusaetzlich einen **lesbaren Fehler-Sensor** (`sensor.*_fehler`) und
+einen **binary_sensor "Tageslimit erreicht"**. Der rohe Fehlercode-Sensor bleibt erhalten; der
+lesbare Sensor zeigt Rohwert und gesetzte Bits zusaetzlich als Attribute — es geht also **keine
+Information verloren**.
+
+**Konservatives Mapping:** Nur Bits mit belegter Bedeutung bekommen einen Klartext; alle anderen
+werden weiterhin als `Bit N` angezeigt.
+
+- **Bit 31 (0x80000000) = „Tagesmaximaldosis erreicht“** — die einzige empirisch bestaetigte
+  Zuordnung: am **2026-07-14** an einer realen Anlage beobachtet (pH-Fehlercode `2147483648` exakt
+  zeitgleich mit App-Push **E24** „Maximalvolumen injiziert“ + Pumpe ausser Betrieb). Der
+  deutsche Text folgt dem CCEI-Uebersetzungs-Key `V_MAX_INJECTED`.
+
+**Quelle der Texte:** offizielles CCEI-Jeedom-Plugin
+[`developer-ccei-pool/jeedom-vigipool`](https://github.com/developer-ccei-pool/jeedom-vigipool),
+Datei `core/template/js/language_german.js`, Commit `51d6d5c9` (2024-08-09), abgerufen 2026-07-14.
+
+> **Wichtig:** Das CCEI-Plugin dekodiert die Fehler-Bitmaske **nicht** selbst — die App-Fehlercodes
+> (E24/E27/E29/E9 …) werden von der Hersteller-Cloud als fertige Meldung gepusht. Es existiert also
+> keine offizielle Bit→Text-Tabelle. Deshalb ist bewusst **nur Bit 31** zugeordnet; weitere
+> Bedeutungen werden erst nach eigener empirischer Bestaetigung ergaenzt (der Kommentar in `const.py`
+> fuehrt die uebrigen CCEI-Texte — pH-/ORP-Messfehler, RS485, Temperatur — als dokumentierte
+> Referenz, aber ohne Bit-Bindung). Aendert CCEI Bedeutungen per Firmware, bleibt die Herkunft so
+> nachvollziehbar.
 
 ---
 

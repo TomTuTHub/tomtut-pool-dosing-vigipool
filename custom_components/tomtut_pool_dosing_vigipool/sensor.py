@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, Optional
 
 from homeassistant.components.sensor import (
     RestoreSensor,
@@ -22,7 +22,13 @@ from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_PHILEO_ID, DOMAIN, MANUFACTURER, MODEL_COMBINED
+from .const import (
+    CONF_PHILEO_ID,
+    DOMAIN,
+    MANUFACTURER,
+    MODEL_COMBINED,
+    format_error_bitmask,
+)
 from .coordinator import OrpheoVPCoordinator
 
 
@@ -31,6 +37,8 @@ class OrpheoSensorEntityDescription(SensorEntityDescription):
     data_key: str
     # Sollwert-Sensoren nach HA-Neustart aus dem HA-State wiederherstellen.
     restore: bool = False
+    # Optionaler Formatter roh -> lesbarer Text (z.B. Fehler-Bitmaske).
+    value_formatter: Callable | None = None
 
 
 SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
@@ -158,6 +166,22 @@ SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         data_key="orp_error",
     ),
+    # Lesbarer Fehlertext je Kanal (v2.4.6): bekannte Bits als Klartext,
+    # unbekannte als "Bit N". Rohwert + gesetzte Bits als Attribute.
+    OrpheoSensorEntityDescription(
+        key="ph_fehler_text",
+        name="pH Fehler",
+        icon="mdi:alert-circle-outline",
+        data_key="ph_error",
+        value_formatter=format_error_bitmask,
+    ),
+    OrpheoSensorEntityDescription(
+        key="orp_fehler_text",
+        name="ORP Fehler",
+        icon="mdi:alert-circle-outline",
+        data_key="orp_error",
+        value_formatter=format_error_bitmask,
+    ),
     OrpheoSensorEntityDescription(
         key="ph_state",
         name="pH State",
@@ -235,5 +259,23 @@ class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], RestoreSensor):
         if self.coordinator.data is not None:
             live = self.coordinator.data.get(self.entity_description.data_key)
             if live is not None:
-                return live
+                fmt = self.entity_description.value_formatter
+                return fmt(live) if fmt else live
         return self._restored_value
+
+    @property
+    def extra_state_attributes(self):
+        # Fuer die lesbaren Fehler-Sensoren: Rohwert + gesetzte Bits
+        # sichtbar lassen (nie Information verschlucken).
+        if self.entity_description.value_formatter is None:
+            return None
+        if self.coordinator.data is None:
+            return None
+        raw = self.coordinator.data.get(self.entity_description.data_key)
+        if raw is None:
+            return None
+        value = int(raw)
+        return {
+            "rohwert": value,
+            "gesetzte_bits": [b for b in range(32) if value & (1 << b)],
+        }

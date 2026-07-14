@@ -15,6 +15,8 @@ from typing import Callable, Optional
 import paho.mqtt.client as mqtt
 
 from .const import (
+    CONFIG_DEBOUNCE,
+    CONFIG_DEBOUNCE_KEYS,
     MQTT_DEFAULT_PORT,
     MQTT_KEEPALIVE,
     OXEO_POINTS,
@@ -71,6 +73,10 @@ class OrpheoMqttClient:
         # Zeitstempel (time.time()) des letzten unerwarteten Disconnects;
         # 0.0 solange verbunden. Basis fuer die Grace-Period im Coordinator.
         self._disconnected_ts: float = 0.0
+        # Entprellte Config-Werte (Behaeltergroesse/Maximaldosis):
+        # short_name -> (raw, seit_ts). settle_config() uebernimmt sie
+        # nach einer Ruhephase in _values (s. const.py CONFIG_DEBOUNCE).
+        self._pending_config: dict[str, tuple[int, float]] = {}
 
         # MQTT broker (= Phileo VP itself) enforces uniqueness on client_id:
         # a second client with the same ID kicks the first off. When multiple
@@ -214,9 +220,21 @@ class OrpheoMqttClient:
                 self._sentinel_logged.add(short_name)
             return
 
-        self._values[short_name] = (raw, time.time())
-        self._last_message_ts = time.time()
+        now = time.time()
+        self._last_message_ts = now
 
+        # Config-Werte entprellen: die Anlage streamt hier Bursts von
+        # Zwischenwerten (s. const.py). Nur als pending vormerken; erst
+        # settle_config() uebernimmt den stabilen Wert in den Cache.
+        if short_name in CONFIG_DEBOUNCE_KEYS:
+            committed = self._values.get(short_name)
+            if committed is None or committed[0] != raw:
+                self._pending_config[short_name] = (raw, now)
+            else:
+                self._pending_config.pop(short_name, None)
+            return
+
+        self._values[short_name] = (raw, now)
         if self._update_callback is not None:
             self._update_callback()
 
@@ -260,6 +278,22 @@ class OrpheoMqttClient:
 
     def has_any_data(self) -> bool:
         return bool(self._values)
+
+    def settle_config(self, now: Optional[float] = None) -> bool:
+        """Uebernimmt entprellte Config-Werte, die lange genug stabil sind.
+        Wird vom Coordinator-Tick aufgerufen. Rueckgabe: True wenn etwas
+        uebernommen wurde."""
+        if not self._pending_config:
+            return False
+        if now is None:
+            now = time.time()
+        changed = False
+        for key, (raw, ts) in list(self._pending_config.items()):
+            if now - ts >= CONFIG_DEBOUNCE:
+                self._values[key] = (raw, now)
+                self._pending_config.pop(key, None)
+                changed = True
+        return changed
 
     # ---------- Public write API ----------
 

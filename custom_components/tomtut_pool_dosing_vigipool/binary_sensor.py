@@ -15,13 +15,21 @@ from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_PHILEO_ID, DOMAIN, MANUFACTURER, MODEL_COMBINED
+from .const import (
+    CONF_PHILEO_ID,
+    DOMAIN,
+    ERROR_MAX_DOSE_BIT,
+    MANUFACTURER,
+    MODEL_COMBINED,
+)
 from .coordinator import OrpheoVPCoordinator
 
 
 @dataclass(frozen=True, kw_only=True)
 class OrpheoBinarySensorEntityDescription(BinarySensorEntityDescription):
     data_key: str
+    # Wenn gesetzt: is_on = (Rohwert & (1<<bit)) statt bool(Rohwert).
+    bit: Optional[int] = None
 
 
 BINARY_SENSOR_DESCRIPTIONS: tuple[OrpheoBinarySensorEntityDescription, ...] = (
@@ -56,6 +64,24 @@ BINARY_SENSOR_DESCRIPTIONS: tuple[OrpheoBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC,
         data_key="ph_mqtt_connected",
+    ),
+    # Tageslimit erreicht je Kanal (v2.4.6) = Fehler-Bit 31 (E24,
+    # V_MAX_INJECTED) - fuer Automationen/Benachrichtigungen.
+    OrpheoBinarySensorEntityDescription(
+        key="ph_tageslimit",
+        name="pH Tageslimit erreicht",
+        icon="mdi:cup-water",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        data_key="ph_error",
+        bit=ERROR_MAX_DOSE_BIT,
+    ),
+    OrpheoBinarySensorEntityDescription(
+        key="orp_tageslimit",
+        name="Chlor Tageslimit erreicht",
+        icon="mdi:cup-water",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        data_key="orp_error",
+        bit=ERROR_MAX_DOSE_BIT,
     ),
 )
 
@@ -102,4 +128,6 @@ class OrpheoVPBinarySensor(CoordinatorEntity[OrpheoVPCoordinator], BinarySensorE
         val = self.coordinator.data.get(self.entity_description.data_key)
         if val is None:
             return None
+        if self.entity_description.bit is not None:
+            return bool(int(val) & (1 << self.entity_description.bit))
         return bool(val)

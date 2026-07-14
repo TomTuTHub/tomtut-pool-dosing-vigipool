@@ -102,6 +102,10 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
     # ------------------------------------------------------------------
 
     async def _async_update_data(self) -> OrpheoData:
+        # Entprellte Config-Werte (Behaeltergroesse/Maximaldosis) uebernehmen,
+        # sobald sie lange genug stabil sind (Debounce gegen Geraete-Bursts,
+        # s. const.py). Laeuft bei jedem Heartbeat-Tick.
+        self.mqtt.settle_config()
         # Broker (= Anlage) per paho-mqtt nicht verbunden? Nicht sofort alles
         # auf unavailable werfen: die Anlage betreibt ihren MQTT-Broker selbst
         # auf oft schwachem WLAN und reconnectet via paho automatisch. Solange
