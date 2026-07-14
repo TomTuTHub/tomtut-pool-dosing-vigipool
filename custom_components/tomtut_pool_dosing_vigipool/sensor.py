@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from homeassistant.components.sensor import (
+    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
@@ -28,6 +29,8 @@ from .coordinator import OrpheoVPCoordinator
 @dataclass(frozen=True, kw_only=True)
 class OrpheoSensorEntityDescription(SensorEntityDescription):
     data_key: str
+    # Sollwert-Sensoren nach HA-Neustart aus dem HA-State wiederherstellen.
+    restore: bool = False
 
 
 SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
@@ -55,6 +58,7 @@ SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
         data_key="ph_setpoint",
+        restore=True,
     ),
     OrpheoSensorEntityDescription(
         key="orp_setpoint",
@@ -64,6 +68,7 @@ SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
         data_key="orp_setpoint",
+        restore=True,
     ),
     OrpheoSensorEntityDescription(
         key="ph_vol_24h",
@@ -191,7 +196,7 @@ async def async_setup_entry(
     )
 
 
-class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], SensorEntity):
+class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], RestoreSensor):
     entity_description: OrpheoSensorEntityDescription
     _attr_has_entity_name = True
 
@@ -205,6 +210,7 @@ class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], SensorEntity):
         self.entity_description = description
         self._pool_id = pool_id
         self._attr_unique_id = f"{pool_id}_{description.key}"
+        self._restored_value = None
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, pool_id)},
             name=coordinator.device_name,
@@ -212,8 +218,22 @@ class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], SensorEntity):
             model=MODEL_COMBINED,
         )
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Sollwert-Sensoren zeigen nach HA-Neustart `unknown`, weil das
+        # Geraet den Sollwert nur bei Boot/Aenderung echot, nicht beim
+        # (Re-)Connect. Letzten bekannten Wert restaurieren; die naechste
+        # Echo-Nachricht ueberschreibt ihn ueber den Coordinator.
+        if self.entity_description.restore:
+            last = await self.async_get_last_sensor_data()
+            if last is not None and last.native_value is not None:
+                self._restored_value = last.native_value
+                self.async_write_ha_state()
+
     @property
     def native_value(self):
-        if self.coordinator.data is None:
-            return None
-        return self.coordinator.data.get(self.entity_description.data_key)
+        if self.coordinator.data is not None:
+            live = self.coordinator.data.get(self.entity_description.data_key)
+            if live is not None:
+                return live
+        return self._restored_value

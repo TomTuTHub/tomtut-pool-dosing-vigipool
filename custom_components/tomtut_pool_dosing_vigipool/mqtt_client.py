@@ -21,6 +21,8 @@ from .const import (
     OXEO_PREFIX,
     PHILEO_POINTS,
     PHILEO_PREFIX,
+    SENTINEL_FILTER_KEYS,
+    SENTINEL_RAW_VALUES,
     oxeo_sub_filter,
     oxeo_topic,
     phileo_sub_filter,
@@ -63,6 +65,9 @@ class OrpheoMqttClient:
         self._values: dict[str, tuple[int, float]] = {}
         self._last_message_ts: float = 0.0
         self._connected: bool = False
+        # Merkt pro Messpunkt, ob der Sentinel-Verwurf schon geloggt wurde
+        # (einmalige Info-Zeile statt Spam bei wiederholtem Messfehler).
+        self._sentinel_logged: set[str] = set()
         # Zeitstempel (time.time()) des letzten unerwarteten Disconnects;
         # 0.0 solange verbunden. Basis fuer die Grace-Period im Coordinator.
         self._disconnected_ts: float = 0.0
@@ -195,6 +200,19 @@ class OrpheoMqttClient:
             except ValueError:
                 _LOGGER.debug("Non-numeric payload on %s: %r", topic, payload)
                 return
+
+        # Sentinel (0xFFFE/0xFFFF) auf einem Live-Messwert = Geraete-
+        # Messfehler: verwerfen, letzten gueltigen Cache-Wert behalten.
+        # Einmal pro Punkt loggen, kein Spam.
+        if short_name in SENTINEL_FILTER_KEYS and raw in SENTINEL_RAW_VALUES:
+            if short_name not in self._sentinel_logged:
+                _LOGGER.info(
+                    "Sentinel-Rohwert %s auf %s verworfen (Geraete-Messfehler-Marker) "
+                    "— behalte letzten gueltigen Wert",
+                    raw, short_name,
+                )
+                self._sentinel_logged.add(short_name)
+            return
 
         self._values[short_name] = (raw, time.time())
         self._last_message_ts = time.time()

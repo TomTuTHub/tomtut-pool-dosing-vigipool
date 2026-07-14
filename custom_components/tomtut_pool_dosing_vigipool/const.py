@@ -20,6 +20,15 @@ MQTT_DEFAULT_PORT = 1883
 # unavailable.
 DISCONNECT_GRACE = 180
 
+# Geraete-Sentinels auf u16-Messwerten: die Rohwerte 0xFFFE/0xFFFF
+# signalisieren einen Messfehler / ungueltigen Wert (beobachtet:
+# sensor.ph zeigte 655.34 = Rohwert 65534). Solche Rohwerte werden auf
+# den Messpunkten verworfen; der Cache behaelt den letzten gueltigen Wert.
+SENTINEL_RAW_VALUES = frozenset({0xFFFE, 0xFFFF})   # 65534, 65535
+# NUR echte Live-Messwerte filtern — NICHT Zaehler (vol_*), Config/
+# Behaeltergroesse oder Firmware-Version (dort sind hohe Werte legitim).
+SENTINEL_FILTER_KEYS = frozenset({"ph", "orp"})
+
 # Config entry keys
 CONF_HOST = "host"
 CONF_PORT = "port"

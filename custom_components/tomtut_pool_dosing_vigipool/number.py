@@ -25,6 +25,9 @@ from .coordinator import OrpheoVPCoordinator
 class OrpheoNumberEntityDescription(NumberEntityDescription):
     data_key: str
     writable_key: str
+    # Nach HA-Neustart letzten Wert aus dem HA-State wiederherstellen,
+    # solange das Geraet noch nichts echot hat (nur fuer Sollwerte noetig).
+    restore: bool = False
 
 
 NUMBER_DESCRIPTIONS: tuple[OrpheoNumberEntityDescription, ...] = (
@@ -39,6 +42,7 @@ NUMBER_DESCRIPTIONS: tuple[OrpheoNumberEntityDescription, ...] = (
         mode=NumberMode.BOX,
         data_key="ph_setpoint",
         writable_key="ph_setpoint",
+        restore=True,
     ),
     OrpheoNumberEntityDescription(
         key="orp_setpoint_write",
@@ -51,6 +55,7 @@ NUMBER_DESCRIPTIONS: tuple[OrpheoNumberEntityDescription, ...] = (
         mode=NumberMode.BOX,
         data_key="orp_setpoint",
         writable_key="orp_setpoint",
+        restore=True,
     ),
     OrpheoNumberEntityDescription(
         key="ph_vol_bac_write",
@@ -142,7 +147,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class OrpheoVPNumber(CoordinatorEntity[OrpheoVPCoordinator], NumberEntity):
+class OrpheoVPNumber(CoordinatorEntity[OrpheoVPCoordinator], RestoreNumber):
     entity_description: OrpheoNumberEntityDescription
     _attr_has_entity_name = True
 
@@ -156,6 +161,7 @@ class OrpheoVPNumber(CoordinatorEntity[OrpheoVPCoordinator], NumberEntity):
         self.entity_description = description
         self._pool_id = pool_id
         self._attr_unique_id = f"{pool_id}_{description.key}"
+        self._restored_value: Optional[float] = None
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, pool_id)},
             name=coordinator.device_name,
@@ -163,11 +169,29 @@ class OrpheoVPNumber(CoordinatorEntity[OrpheoVPCoordinator], NumberEntity):
             model=MODEL_COMBINED,
         )
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Sollwerte werden auf .../consigne/desired geschrieben; das Geraet
+        # echot den Live-Wert nur bei Boot/echter Aenderung auf
+        # .../info/reported, NICHT beim (Re-)Connect. Nach HA-Neustart ist
+        # der MQTT-Cache leer und der Sollwert bliebe dauerhaft `unknown`.
+        # Sicherheitsnetz: letzten bekannten Wert aus dem HA-State
+        # restaurieren; die naechste Echo-Nachricht ueberschreibt ihn.
+        if self.entity_description.restore:
+            last = await self.async_get_last_number_data()
+            if last is not None and last.native_value is not None:
+                self._restored_value = float(last.native_value)
+                self.async_write_ha_state()
+
     @property
     def native_value(self) -> Optional[float]:
-        if self.coordinator.data is None:
-            return None
-        return self.coordinator.data.get(self.entity_description.data_key)
+        if self.coordinator.data is not None:
+            live = self.coordinator.data.get(self.entity_description.data_key)
+            if live is not None:
+                return live
+        # Kein Live-Wert im Cache → auf restaurierten Sollwert zurueckfallen
+        # (nur bei restore-faehigen Entities gesetzt, sonst None wie bisher).
+        return self._restored_value
 
     async def async_set_native_value(self, value: float) -> None:
         await self.coordinator.mqtt.async_write(self.entity_description.writable_key, value)
