@@ -60,7 +60,14 @@ SENTINEL_FILTER_KEYS = frozenset({"ph", "orp"})
 #   ORP_ERROR_MESURE_27 (Z.401) analog fuer ORP-Messungen.
 #   RS485_ERROR / code_E9 (Z.407) "... Kommunikationsfehler (RS485) ..."
 #   TEMP_HIGH (Z.385) / TEMP_LOW (Z.386) Temperatur-Messfehler.
-# Beobachtet, Bedeutung unbelegt: ORP-Bit 24 (0x01000000), Mai/Juni 2026.
+# Beobachtet, Bedeutung UNBELEGT -> bleibt "Bit 24": ORP-Bit 24 (0x01000000)
+# trat AUSSCHLIESSLICH 12.-14.05.2026 auf (erste 3 Tage nach Inbetriebnahme
+# der Integration; erste Episode 12.05. 09:51:52 = quasi Minute 1 der
+# Aufzeichnung), meist kombiniert als 0x81000000 (Bit 31+24) waehrend
+# "Tagesmaximaldosis erreicht". Die ORP-Messwerte dieser Stunden waren
+# unauffaellig (584-624 mV) -> KEINE Messfehler-Signatur (spricht gegen E27).
+# Vermutung (unbewiesen): Inbetriebnahme-/Kalibrier-/Kopplungs-Flag; seit
+# 14.05. nie wieder. Quelle: HA-Export ka-147, Korrelationsanalyse 2026-07-14.
 # ---------------------------------------------------------------------------
 ERROR_MAX_DOSE_BIT = 31  # V_MAX_INJECTED / E24 - Tagesmaximaldosis (bewiesen)
 

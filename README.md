@@ -127,6 +127,10 @@ werden weiterhin als `Bit N` angezeigt.
   Zuordnung: am **2026-07-14** an einer realen Anlage beobachtet (pH-Fehlercode `2147483648` exakt
   zeitgleich mit App-Push **E24** „Maximalvolumen injiziert“ + Pumpe ausser Betrieb). Der
   deutsche Text folgt dem CCEI-Uebersetzungs-Key `V_MAX_INJECTED`.
+- **Bit 24 (ORP)** bleibt bewusst **„Bit 24“ (unbekannt):** trat nur in den ersten drei
+  Tagen nach Inbetriebnahme (12.–14.05.2026) auf, meist zusammen mit Bit 31, bei
+  unauffaelligen ORP-Messwerten (584–624 mV) — also **kein** Messfehler; vermutlich ein
+  Inbetriebnahme-/Kalibrier-Flag (unbewiesen). Quelle: HA-Export ka-147, Analyse 2026-07-14.
 
 **Quelle der Texte:** offizielles CCEI-Jeedom-Plugin
 [`developer-ccei-pool/jeedom-vigipool`](https://github.com/developer-ccei-pool/jeedom-vigipool),
