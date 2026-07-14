@@ -290,9 +290,13 @@ class OrpheoMqttClient:
         changed = False
         for key, (raw, ts) in list(self._pending_config.items()):
             if now - ts >= CONFIG_DEBOUNCE:
-                self._values[key] = (raw, now)
-                self._pending_config.pop(key, None)
-                changed = True
+                # Nur uebernehmen+entfernen, wenn das Pending unveraendert ist:
+                # der paho-Thread koennte zwischenzeitlich einen neuen Wert
+                # gesetzt haben (anderes (raw, ts)) - den nicht verwerfen.
+                if self._pending_config.get(key) == (raw, ts):
+                    self._values[key] = (raw, now)
+                    del self._pending_config[key]
+                    changed = True
         return changed
 
     # ---------- Public write API ----------
@@ -332,6 +336,10 @@ class OrpheoMqttClient:
             _LOGGER.info("MQTT write %s -> %s (raw=%s)", short_name, value, raw)
             # Optimistisch in den Cache legen damit UI direkt reagiert
             self._values[short_name] = (raw, time.time())
+            # Ein evtl. anhaengiges Debounce-Pending fuer diesen Key verwerfen -
+            # sonst wuerde settle_config() den gerade geschriebenen User-Wert
+            # kurz darauf lautlos mit einem alten Geraete-Burst-Wert ueberrollen.
+            self._pending_config.pop(short_name, None)
             if self._update_callback is not None:
                 self._update_callback()
         else:

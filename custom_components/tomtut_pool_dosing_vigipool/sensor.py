@@ -274,7 +274,10 @@ class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], RestoreSensor):
         raw = self.coordinator.data.get(self.entity_description.data_key)
         if raw is None:
             return None
-        value = int(raw)
+        try:
+            value = int(raw)
+        except (TypeError, ValueError):
+            return None
         return {
             "rohwert": value,
             "gesetzte_bits": [b for b in range(32) if value & (1 << b)],
