@@ -63,6 +63,9 @@ class OrpheoMqttClient:
         self._values: dict[str, tuple[int, float]] = {}
         self._last_message_ts: float = 0.0
         self._connected: bool = False
+        # Zeitstempel (time.time()) des letzten unerwarteten Disconnects;
+        # 0.0 solange verbunden. Basis fuer die Grace-Period im Coordinator.
+        self._disconnected_ts: float = 0.0
 
         # MQTT broker (= Phileo VP itself) enforces uniqueness on client_id:
         # a second client with the same ID kicks the first off. When multiple
@@ -130,6 +133,7 @@ class OrpheoMqttClient:
             _LOGGER.error("MQTT connect failed (rc=%s)", rc)
             return
         self._connected = True
+        self._disconnected_ts = 0.0
         filters = [
             (phileo_sub_filter(self._phileo_id), 0),
             (oxeo_sub_filter(self._oxeo_id), 0),
@@ -138,7 +142,17 @@ class OrpheoMqttClient:
         _LOGGER.info("Subscribed: %s", [f[0] for f in filters])
 
     def _on_disconnect(self, client, userdata, rc):  # noqa: ARG002
+        # paho ruft diesen Callback bei EINEM einzigen unerwarteten Disconnect
+        # aus mehreren Loop-Pfaden auf (loop_read + _loop_rc_handle), µs
+        # auseinander im selben Thread — ohne interne Deduplizierung. Ohne
+        # Guard erzeugt das zwei identische WARNING-Zeilen. Idempotent machen:
+        # war die Verbindung schon als weg markiert, nichts doppelt tun
+        # (kein zweites WARNING, Disconnect-Zeitstempel der ERSTEN Meldung
+        # behalten — die Grace-Period rechnet ab dem ersten Ausfall).
+        if not self._connected:
+            return
         self._connected = False
+        self._disconnected_ts = time.time()
         if rc != 0:
             _LOGGER.warning("MQTT unexpected disconnect rc=%s — paho reconnects automatisch", rc)
 
@@ -193,6 +207,12 @@ class OrpheoMqttClient:
     @property
     def connected(self) -> bool:
         return self._connected
+
+    @property
+    def disconnected_since(self) -> float:
+        """time.time()-Zeitstempel des letzten unerwarteten Disconnects.
+        0.0 wenn verbunden oder noch nie verbunden gewesen."""
+        return self._disconnected_ts
 
     @property
     def last_message_ts(self) -> float:

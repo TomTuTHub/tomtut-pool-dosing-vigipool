@@ -10,6 +10,16 @@ MQTT_KEEPALIVE = 15                 # paho-mqtt Keepalive (s): Anlage als
                                     # ohne PINGRESP — also ~45s.
 MQTT_DEFAULT_PORT = 1883
 
+# Grace-Period (s) nach einem MQTT-Disconnect: solange die letzte
+# Verbindung nicht laenger als DISCONNECT_GRACE her ist UND gecachte
+# Werte vorliegen, behaelt der Coordinator die letzten Werte bei
+# (Entities bleiben verfuegbar), statt bei jedem kurzen WLAN-Schluckauf
+# auf unavailable zu springen. Die Anlage betreibt ihren MQTT-Broker
+# selbst (oft schwaches WLAN) und reconnectet via paho automatisch; erst
+# wenn sie laenger als DISCONNECT_GRACE weg ist, gelten die Entities als
+# unavailable.
+DISCONNECT_GRACE = 180
+
 # Config entry keys
 CONF_HOST = "host"
 CONF_PORT = "port"

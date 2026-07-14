@@ -19,7 +19,14 @@ from typing import Optional
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DEFAULT_NAME, DOMAIN, OXEO_POINTS, PHILEO_POINTS, SCAN_INTERVAL
+from .const import (
+    DEFAULT_NAME,
+    DISCONNECT_GRACE,
+    DOMAIN,
+    OXEO_POINTS,
+    PHILEO_POINTS,
+    SCAN_INTERVAL,
+)
 from .mqtt_client import OrpheoMqttClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -53,6 +60,10 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
         )
         self.mqtt = mqtt_client
         self.device_name: str = DEFAULT_NAME
+        # Merkt sich, ob die ">DISCONNECT_GRACE nicht erreichbar"-Warnung
+        # fuer die laufende Offline-Phase schon geloggt wurde (einmal pro
+        # Episode, kein Log-Spam pro 30-s-Tick). Reset sobald wieder verbunden.
+        self._offline_logged = False
 
         mqtt_client.set_update_callback(self._mqtt_push_callback)
 
@@ -91,9 +102,30 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
     # ------------------------------------------------------------------
 
     async def _async_update_data(self) -> OrpheoData:
-        # Wenn der lokale Broker (= Anlage) per paho-mqtt nicht verbunden ist,
-        # gilt die Anlage als offline → UpdateFailed → Entities werden unavailable.
+        # Broker (= Anlage) per paho-mqtt nicht verbunden? Nicht sofort alles
+        # auf unavailable werfen: die Anlage betreibt ihren MQTT-Broker selbst
+        # auf oft schwachem WLAN und reconnectet via paho automatisch. Solange
+        # der Disconnect juenger als DISCONNECT_GRACE ist UND gecachte Werte
+        # vorliegen → letzte Werte weiterreichen (Entities bleiben mit dem Stand
+        # von eben verfuegbar, kurzer WLAN-Schluckauf bleibt unsichtbar). Erst
+        # wenn die Grace abgelaufen ist — oder es nie Daten gab (frischer
+        # HA-Start, Anlage aus) — → UpdateFailed → Entities unavailable.
         if not self.mqtt.connected:
+            disc_since = self.mqtt.disconnected_since
+            cached = self._build_from_mqtt()
+            if disc_since and cached is not None:
+                if (time.time() - disc_since) < DISCONNECT_GRACE:
+                    # Innerhalb der Grace: kurzer Aussetzer. Letzte Werte halten,
+                    # kein eigenes Log (paho hat den Disconnect bereits geloggt).
+                    return cached
+                # Grace gerade abgelaufen → genau EINMAL warnen (beim Uebergang),
+                # danach still bis zur Wiederverbindung.
+                if not self._offline_logged:
+                    _LOGGER.warning(
+                        "Anlage seit >%ss nicht erreichbar — Entitaeten gehen auf unavailable",
+                        DISCONNECT_GRACE,
+                    )
+                    self._offline_logged = True
             age = (
                 time.time() - self.mqtt.last_message_ts
                 if self.mqtt.last_message_ts
@@ -102,6 +134,10 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
             raise UpdateFailed(
                 f"Anlage nicht erreichbar (MQTT disconnected, letzte Nachricht vor {age:.0f}s)"
             )
+
+        # Verbindung steht → Offline-Warnungs-Flag zuruecksetzen, damit ein
+        # spaeterer Ausfall erneut (einmal) warnt.
+        self._offline_logged = False
 
         # Verbindung steht → Snapshot aus dem MQTT-Cache liefern. Auch wenn die
         # Anlage seit Stunden keine neuen Werte publisht (sie publisht nur bei
