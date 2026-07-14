@@ -151,11 +151,11 @@ MIT
 
 ---
 
-## Ueber den Autor
+## Über den Autor
 
-Ich bin ausgebildeter Fachinformatiker fuer Systemintegration mit langjaehriger IT-Erfahrung. Frueher war es der MCSE — heute ist es Vibe Coding. Diese Integration wurde mit Hilfe von Claude gebaut. Ohne KI-Unterstuetzung haette ich das nebenbei nie in dieser Form hinbekommen. Der Code wurde von mir getestet und laeuft in meinem eigenen Produktiv-Setup.
+Ich bin ausgebildeter Fachinformatiker für Systemintegration mit langjähriger IT-Erfahrung. Früher war es der MCSE — heute ist es Vibe Coding. Diese Integration wurde mit Hilfe von Claude gebaut. Ohne KI-Unterstützung hätte ich das nebenbei nie in dieser Form hinbekommen. Der Code wurde von mir getestet und läuft in meinem eigenen Produktiv-Setup.
 
-Mehr auf [thomasbase.de](https://thomasbase.de) und [YouTube @TomTuT](https://www.youtube.com/@TomTuT).
+Mehr auf [tomtut.de](https://tomtut.de) und [YouTube @TomTuT](https://www.youtube.com/@TomTuT).
 
 ---
 
