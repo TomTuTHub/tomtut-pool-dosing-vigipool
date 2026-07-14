@@ -79,6 +79,12 @@ class OrpheoVPCoordinator(DataUpdateCoordinator[OrpheoData]):
 
     @callback
     def _handle_mqtt_push(self) -> None:
+        # Entprellte Config-Werte auch im Push-Pfad uebernehmen: unter Dauer-
+        # Push (Messwerte alle paar s) terminiert async_set_updated_data den
+        # 30-s-Heartbeat staendig neu, sodass _async_update_data kaum feuert -
+        # settle_config() muss daher auch hier laufen, sonst settelt
+        # vol_bac/vol_max_24h nie.
+        self.mqtt.settle_config()
         data = self._build_from_mqtt()
         if data is not None:
             self.async_set_updated_data(data)
