@@ -25,6 +25,7 @@ from .const import (
     PHILEO_PREFIX,
     SENTINEL_FILTER_KEYS,
     SENTINEL_RAW_VALUES,
+    SNAPSHOT_READ_SUBTYPES,
     oxeo_sub_filter,
     oxeo_topic,
     phileo_sub_filter,
@@ -39,7 +40,11 @@ def _split_subtype(s) -> tuple[str, str]:
     single string, both are the same. When it uses a 2-tuple the device
     publishes its current value on a different subtype than it accepts
     writes on (observed for `consigne_ph` on the Phileo VP: writes on
-    `consigne/desired`, current value echoed back on `info/reported`)."""
+    `consigne/desired`, change echo on `info/reported`).
+
+    Sollwerte haben zusaetzlich eine zweite Lesequelle, den retained Snapshot
+    auf `consigne/reported` — die steht in SNAPSHOT_READ_SUBTYPES, nicht hier,
+    weil sie eine eigene Prioritaetsregel braucht (s. `_snapshot_gate`)."""
     if isinstance(s, tuple):
         return s[0], s[1]
     return s, s
@@ -77,6 +82,11 @@ class OrpheoMqttClient:
         # short_name -> (raw, seit_ts). settle_config() uebernimmt sie
         # nach einer Ruhephase in _values (s. const.py CONFIG_DEBOUNCE).
         self._pending_config: dict[str, tuple[int, float]] = {}
+        # Sollwert-Punkte, fuer die bereits ein LIVE-Wert vorliegt (Aenderungs-
+        # Echo auf `info/reported` oder eigener Schreibzugriff). Sobald ein
+        # Punkt hier steht, wird der retained Snapshot fuer ihn ignoriert —
+        # Begruendung in `_snapshot_gate`.
+        self._live_sourced: set[str] = set()
 
         # MQTT broker (= Phileo VP itself) enforces uniqueness on client_id:
         # a second client with the same ID kicks the first off. When multiple
@@ -190,10 +200,18 @@ class OrpheoMqttClient:
             return
 
         short_name = None
+        is_snapshot = False
         for key, (kt, kn, ks, _scale, _w) in points.items():
+            if kt != dtype or kn != name:
+                continue
             read_sub, _write_sub = _split_subtype(ks)
-            if kt == dtype and kn == name and read_sub == subtype:
+            if read_sub == subtype:
                 short_name = key
+                break
+            # Zweite Lesequelle: der retained Snapshot (v2.4.7, nur Sollwerte)
+            if SNAPSHOT_READ_SUBTYPES.get(key) == subtype:
+                short_name = key
+                is_snapshot = True
                 break
         if short_name is None:
             return
@@ -220,6 +238,10 @@ class OrpheoMqttClient:
                 self._sentinel_logged.add(short_name)
             return
 
+        # Quellen-Prioritaet fuer die Sollwerte (v2.4.7) — s. _snapshot_gate.
+        if not self._snapshot_gate(short_name, is_snapshot, raw):
+            return
+
         now = time.time()
         self._last_message_ts = now
 
@@ -237,6 +259,51 @@ class OrpheoMqttClient:
         self._values[short_name] = (raw, now)
         if self._update_callback is not None:
             self._update_callback()
+
+    def _snapshot_gate(self, short_name: str, is_snapshot: bool, raw: int) -> bool:
+        """Entscheidet, ob eine Sollwert-Nachricht in den Cache darf.
+
+        Hintergrund: Die Anlage liefert Sollwerte aus zwei Quellen
+        (s. SNAPSHOT_READ_SUBTYPES in const.py) — einem RETAINED Snapshot auf
+        `consigne/reported` und dem nicht-retained Aenderungs-Echo auf
+        `info/reported`.
+
+        Warum hier NICHT einfach "juengster Zeitstempel gewinnt": Der retained
+        Snapshot veraltet. Nach einer Sollwert-Aenderung bleibt er auf dem
+        alten Wert stehen, bis das Geraet neu startet. Bei jedem MQTT-Reconnect
+        (WLAN-Schluckauf) liefert der Broker ihn erneut aus — er kaeme also
+        SPAETER an, traegt aber die AELTERE Information. Reine Ankunftszeit
+        wuerde einen frisch gesetzten Sollwert damit still auf den alten Stand
+        zurueckdrehen.
+
+        Regel deshalb:
+          * Live-Quelle (Aenderungs-Echo oder eigener Schreibzugriff) gilt
+            immer und markiert den Punkt dauerhaft als live-versorgt.
+          * Snapshot gilt nur, solange fuer diesen Punkt noch keine Live-Quelle
+            gesehen wurde — also beim Start, nach HA-Neustart und nach einem
+            Geraete-Neustart. Genau dort ist er korrekt.
+        Innerhalb einer Quelle gewinnt weiterhin die juengste Nachricht.
+
+        Ein spaeter ignorierter Snapshot kostet nichts: Ein Geraete-Neustart
+        aendert den Sollwert nicht, der gehaltene Live-Wert bleibt also richtig.
+
+        Rueckgabe: True = uebernehmen, False = verwerfen.
+        """
+        if short_name not in SNAPSHOT_READ_SUBTYPES:
+            return True
+        if not is_snapshot:
+            self._live_sourced.add(short_name)
+            return True
+        if short_name in self._live_sourced:
+            _LOGGER.debug(
+                "Retained Sollwert-Snapshot %s=%s verworfen — Live-Wert liegt vor",
+                short_name, raw,
+            )
+            return False
+        _LOGGER.info(
+            "Sollwert %s aus retained Snapshot uebernommen (raw=%s)", short_name, raw
+        )
+        return True
 
     # ---------- Public read API ----------
 
@@ -336,6 +403,10 @@ class OrpheoMqttClient:
             _LOGGER.info("MQTT write %s -> %s (raw=%s)", short_name, value, raw)
             # Optimistisch in den Cache legen damit UI direkt reagiert
             self._values[short_name] = (raw, time.time())
+            # Eigener Schreibzugriff ist eine Live-Quelle: ab jetzt darf ein
+            # retained Snapshot diesen Sollwert nicht mehr ueberschreiben.
+            if short_name in SNAPSHOT_READ_SUBTYPES:
+                self._live_sourced.add(short_name)
             # Ein evtl. anhaengiges Debounce-Pending fuer diesen Key verwerfen -
             # sonst wuerde settle_config() den gerade geschriebenen User-Wert
             # kurz darauf lautlos mit einem alten Geraete-Burst-Wert ueberrollen.

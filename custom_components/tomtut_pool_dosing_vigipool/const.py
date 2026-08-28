@@ -25,9 +25,31 @@ DISCONNECT_GRACE = 180
 # sensor.ph zeigte 655.34 = Rohwert 65534). Solche Rohwerte werden auf
 # den Messpunkten verworfen; der Cache behaelt den letzten gueltigen Wert.
 SENTINEL_RAW_VALUES = frozenset({0xFFFE, 0xFFFF})   # 65534, 65535
-# NUR echte Live-Messwerte filtern — NICHT Zaehler (vol_*), Config/
-# Behaeltergroesse oder Firmware-Version (dort sind hohe Werte legitim).
-SENTINEL_FILTER_KEYS = frozenset({"ph", "orp"})
+# Gefiltert werden Live-Messwerte UND Config-/Sollwert-Punkte (ab v2.4.7).
+#
+# Erweiterung v2.4.7: Die Anlage meldet auf `vol_bac` den Rohwert 65535, wenn
+# die Behaeltergroesse nie konfiguriert wurde. Ohne Filter wurde daraus mit
+# scale=100 eine "Behaeltergroesse 655,35 L" — ausserhalb des eigenen
+# native_max_value (60) der Number-Entity, und die abgeleitete Restmengen-
+# Entity erbte den Unsinn als Maximum. Live belegt am 28.08.2026 auf BEIDEN
+# Geraeten (Phileo + Oxeo). Dass 65534/65535 bei CCEI generell "ungueltig"
+# heissen und nicht nur auf Messwerten, belegt CCEIs eigener Code:
+# jeedom-vigipool @ 51d6d5c, core/class/vigipool.class.php:154-183
+# (`get_mqtt_value` verwirft 0/65534/65535 fuer JEDE Variable).
+#
+# ⚠️ Die Lebensdauer-Zaehler `ph_vol_total`/`orp_vol_total` sind BEWUSST NICHT
+# enthalten: sie zaehlen in Hundertstel-Litern und erreichen 65535 bei den
+# gemessenen ~0,28 L/Tag nach rund 6,4 Jahren voellig regulaer. Ein Filter
+# waere dort irgendwann echter Datenverlust statt Fehlerschutz.
+SENTINEL_FILTER_KEYS = frozenset({
+    # Live-Messwerte (seit v2.4.5)
+    "ph", "orp",
+    # Config-Werte (v2.4.7)
+    "ph_vol_bac", "orp_vol_bac",
+    "ph_vol_max_24h", "orp_vol_max_24h",
+    # Sollwerte (v2.4.7)
+    "ph_setpoint", "orp_setpoint",
+})
 
 # ---------------------------------------------------------------------------
 # Fehlercode-Bitmaske -> Klartext (v2.4.6)
@@ -177,9 +199,9 @@ def oxeo_sub_filter(device_id: str) -> str:
 # `_split_subtype` in mqtt_client.py.
 PHILEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bool]] = {
     "ph":                 ("u16_r", "value_ph",              "value",    100.0, False),
-    # consigne_ph: Geraet echo't den Live-Wert auf `info/reported`, nicht auf
-    # `consigne/reported` (das traegt einen stehengebliebenen Absolutwert).
-    # Schreibwege gehen weiterhin auf `consigne/desired`.
+    # consigne_ph: ZWEI Lesequellen, s. SNAPSHOT_READ_SUBTYPES weiter unten.
+    # `info/reported` traegt die AENDERUNG (nicht retained), `consigne/reported`
+    # den retained Snapshot. Schreibwege gehen weiterhin auf `consigne/desired`.
     "ph_setpoint":        ("u16_w", "consigne_ph",           ("info", "consigne"), 100.0, True),
     "ph_inject_on":       ("u8_r",  "inject_on",             "value",    None,  False),
     "ph_flow_on":         ("u8_r",  "flow_on",               "value",    None,  False),
@@ -200,7 +222,7 @@ PHILEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bo
 
 OXEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bool]] = {
     "orp":                ("u16_r", "value_orp",             "value",    None,  False),
-    # consigne_orp: gleiches Muster wie consigne_ph — Echo auf `info/reported`,
+    # consigne_orp: gleiches Muster wie consigne_ph (zwei Lesequellen),
     # Schreiben auf `consigne/desired`. Live verifiziert via MQTT-Probe 2026-05-14.
     "orp_setpoint":       ("u16_w", "consigne_orp",          ("info", "consigne"), None, True),
     "orp_inject_on":      ("u8_r",  "inject_on",             "value",    None,  False),
@@ -214,4 +236,33 @@ OXEO_POINTS: dict[str, tuple[str, str, str | tuple[str, str], float | None, bool
     "orp_rssi":           ("i8_r",  "rssi",                  "info",     None,  False),
     "orp_error":          ("u32_r", "error",                 "info",     None,  False),
     "orp_sw_vers":        ("u16_r", "sw_vers",               "info",     None,  False),
+}
+
+
+# ---------------------------------------------------------------------------
+# Mehrquellen-Lesepunkte: die Sollwerte (v2.4.7)
+#
+# Die Anlage veroeffentlicht ihre Sollwerte auf ZWEI Topics mit
+# unterschiedlicher Charakteristik — belegt durch den passiven
+# MQTT-Vollmitschnitt vom 28.08.2026 (ka-147):
+#
+#   .../consigne_ph/consigne/reported   RETAINED  Snapshot. Liegt beim
+#       (Re-)Connect und nach jedem Geraete-Neustart sofort an und ist in
+#       diesem Moment korrekt (07:39:36 UTC: 740 = pH 7,40). ABER: er
+#       veraltet — nach einer Sollwert-Aenderung bleibt er auf dem alten
+#       Wert stehen, bis das Geraet neu startet.
+#
+#   .../consigne_ph/info/reported       NICHT retained. Traegt AUSSCHLIESSLICH
+#       die Aenderung (07:41:50 UTC: 720 = pH 7,20 nach einem Schreibzugriff).
+#       Nach einem HA-Neustart kommt hier nichts mehr — genau deshalb stand
+#       der Sollwert bis v2.4.6 dauerhaft auf `unknown`.
+#
+# Bis v2.4.6 lasen wir NUR `info` (Konsequenz: unknown nach jedem HA-Neustart).
+# Ab v2.4.7 lesen wir beide; die Prioritaet loest `_snapshot_gate` im
+# mqtt_client (dort ausfuehrlich begruendet).
+#
+# short_name -> zusaetzlicher Lese-Subtype (der retained Snapshot)
+SNAPSHOT_READ_SUBTYPES: dict[str, str] = {
+    "ph_setpoint": "consigne",
+    "orp_setpoint": "consigne",
 }
