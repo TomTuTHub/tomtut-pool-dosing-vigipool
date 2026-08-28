@@ -151,6 +151,27 @@ def t_orp_stale_snapshot():
     check("1g ORP: veralteter Snapshot ignoriert", cl.get("orp_setpoint"), 670.0)
 
 
+def t_user_write_then_stale_snapshot():
+    """User setzt den Sollwert ueber die Number-Entity, BEVOR je ein Snapshot
+    oder ein Aenderungs-Echo ankam (z.B. direkt nach dem Start). `async_write`
+    legt den Wert optimistisch in den Cache und markiert den Punkt als
+    live-versorgt. Ein danach eintreffender retained Snapshot traegt noch den
+    ALTEN Geraetewert und darf den frisch gesetzten Wert nicht ueberschreiben.
+    """
+    cl = new_client()
+    # Effekt von async_write nachbilden (ohne Netz/hass):
+    cl._values["ph_setpoint"] = (720, 1000.0)
+    cl._live_sourced.add("ph_setpoint")
+    before = dict(cl._values)
+
+    send(cl, SETPOINT_SNAPSHOT, 740)  # veralteter Retain nach dem User-Write
+
+    check("1i User-Write dann Snapshot -> User-Wert bleibt",
+          cl.get("ph_setpoint"), 7.2)
+    check("1j User-Write dann Snapshot -> _values unveraendert",
+          cl._values, before)
+
+
 def t_live_after_live():
     """Innerhalb der Live-Quelle gewinnt weiterhin die juengste Nachricht."""
     cl = new_client()
@@ -226,7 +247,7 @@ def main():
     for fn in (
         t_snapshot_only, t_live_only, t_snapshot_then_live,
         t_stale_snapshot_after_live, t_nothing, t_orp_snapshot,
-        t_orp_stale_snapshot, t_live_after_live,
+        t_orp_stale_snapshot, t_user_write_then_stale_snapshot, t_live_after_live,
         t_sentinel_vol_bac, t_sentinel_vol_bac_orp, t_sentinel_vol_max,
         t_sentinel_setpoint, t_vol_total_not_filtered,
         t_measurement_sentinel_still_works, t_debounce_still_works,
