@@ -64,7 +64,7 @@ The device must be on a network reachable from Home Assistant (typically your Io
 3. Search for **TomTuT Pool Dosing Vigipool**
 4. Enter:
    - **IP address** of the device (the device itself is the MQTT broker)
-   - **Phileo VP Device-ID** (12 hex chars — the WiFi MAC without separators, e.g. `08D1F9976534`)
+   - **Phileo VP Device-ID** (12 hex chars — the WiFi MAC without separators, e.g. `AABBCCDDEE01`)
    - **Oxeo VP Device-ID** (12 hex chars)
 
    No cloud credentials required — this integration is local-only.
@@ -73,10 +73,10 @@ The device must be on a network reachable from Home Assistant (typically your Io
 
 The Device-IDs are the WiFi MAC addresses of the two internal modules (Phileo + Oxeo), each written **without colons** (12 hex characters). Both modules are based on Espressif (ESP32) chips with these OUI prefixes:
 
-| Module | OUI prefix | Example full ID | On WiFi? |
+| Module | OUI prefix (Espressif) | Example full ID (placeholder) | On WiFi? |
 |---|---|---|---|
-| Phileo VP (pH) | `08:D1:F9` → `08D1F9...` | `08D1F9976534` | yes — has its own LAN IP |
-| Oxeo VP (Redox) | `B0:B2:1C` → `B0B21C...` | `B0B21C023368` | **no** — paired to the Phileo over short-range RF (BLE / Sub-GHz) |
+| Phileo VP (pH) | `08:D1:F9` | `AABBCCDDEE01` | yes — has its own LAN IP |
+| Oxeo VP (Redox) | `B0:B2:1C` | `AABBCCDDEE02` | **no** — paired to the Phileo over short-range RF (BLE / Sub-GHz) |
 
 > **Important:** only the **Phileo VP** is on your WiFi. The Oxeo VP is paired to the Phileo over a short-range radio link (typical RSSI around -8 dBm, i.e. right next to it), and its readings/topics are relayed through the Phileo's MQTT broker. So you will see the Phileo on your router — but **not** the Oxeo.
 
@@ -104,8 +104,8 @@ The most reliable way to grab both IDs at once is to listen to the MQTT broker t
 Since version 2.2.1 the integration accepts the IDs in any common formatting:
 
 ```
-08D1F9976534          08:D1:F9:97:65:34          08-D1-F9-97-65-34
-08 D1 F9 97 65 34     08.D1.F9.97.65.34          (case-insensitive)
+AABBCCDDEE01          AA:BB:CC:DD:EE:01          AA-BB-CC-DD-EE-01
+AA BB CC DD EE 01     aa.bb.cc.dd.ee.01          (case-insensitive)
 ```
 
 Separators (`:`, `-`, `.`, spaces) are stripped automatically.

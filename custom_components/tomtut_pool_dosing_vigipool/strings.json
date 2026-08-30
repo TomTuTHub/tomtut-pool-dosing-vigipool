@@ -21,7 +21,7 @@
     },
     "error": {
       "invalid_ip": "Ungueltige IP-Adresse",
-      "invalid_device_id": "Ungueltige Device-ID — erwartet: 12 Hex-Zeichen (WLAN-MAC). Trennzeichen `:` `-` `.` und Leerzeichen werden automatisch entfernt. Beispiele: 08D1F9976534, 08:D1:F9:97:65:34, 08-d1-f9-97-65-34",
+      "invalid_device_id": "Ungueltige Device-ID — erwartet: 12 Hex-Zeichen (WLAN-MAC). Trennzeichen `:` `-` `.` und Leerzeichen werden automatisch entfernt. Beispiele: AABBCCDDEE01, AA:BB:CC:DD:EE:01, aa-bb-cc-dd-ee-01",
       "cannot_connect": "Anlage nicht erreichbar (MQTT-Port unter angegebener IP/Port nicht antwortend)"
     },
     "abort": {
