@@ -19,7 +19,8 @@ Use at your own risk.
 - **Local push via MQTT** — the device is its own broker on port 1883 (no external broker required, no auth needed)
 - **Fully local** — no cloud login required; no traffic to `supervision.vigipool.com`. You can block the device from the internet entirely.
 - **Self-healing connection** — if the device goes offline (network outage, reboot, blocked at firewall), entities go `unavailable` within ~30 s; once the device returns, the integration reconnects automatically — no manual re-add.
-- Sensors for **pH**, **Redox/ORP**, **flow**, **dosing pumps**, **daily/total injected volume**, **WiFi signal**, **firmware**, **errors**, plus live status of the device's manufacturer-cloud uplink (`mqtt_connected`)
+- Sensors for **pH**, **Redox/ORP**, **flow**, **dosing pumps**, **daily/total injected volume**, **WiFi signal**, **firmware**, **errors**
+- ℹ️ The device does **not** expose its cloud-uplink status locally (`mqtt_connected` stays `1` even with internet blocked) — hence there is no "cloud connected" entity since v2.4.8. Use the manufacturer app to see whether the cloud can reach the device.
 - Read/write entities for **setpoints** (pH, ORP), **container size**, **daily max dose**, **spa-mode**, **winter-mode**
 - **Restmenge tracking** (canister fill level) — auto-decrements based on injected volume, persists across restarts
 - **Readable error codes** (v2.4.6) — the raw error bitmask is additionally exposed as a human-readable German text sensor (`sensor.*_fehler`), plus a **"Tageslimit erreicht" binary sensor** per channel (daily max dose reached) for automations. Container-size / max-dose config values are **debounced** against device value bursts.

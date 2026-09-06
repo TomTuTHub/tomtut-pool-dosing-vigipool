@@ -1,17 +1,20 @@
 """Binary sensor platform for Orpheo VP."""
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Optional
 
 from homeassistant.components.binary_sensor import (
+    DOMAIN as BINARY_SENSOR_DOMAIN,
     BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo, EntityCategory
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -23,6 +26,8 @@ from .const import (
     MODEL_COMBINED,
 )
 from .coordinator import OrpheoVPCoordinator
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -54,17 +59,6 @@ BINARY_SENSOR_DESCRIPTIONS: tuple[OrpheoBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.MOVING,
         data_key="ph_flow_on",
     ),
-    OrpheoBinarySensorEntityDescription(
-        # Echter Live-Status der Hersteller-Cloud-Verbindung. `mqtt_connected`
-        # flippt auf 0, sobald die Anlage merkt, dass sie ihre Cloud nicht mehr
-        # erreicht; `server_on` (vorher genutzt) ist nur ein Modus-Flag.
-        key="ph_mqtt_connected",
-        name="Cloud-Verbindung",
-        icon="mdi:cloud-check",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        data_key="ph_mqtt_connected",
-    ),
     # Tageslimit erreicht je Kanal (v2.4.6) = Fehler-Bit 31 (E24,
     # V_MAX_INJECTED) - fuer Automationen/Benachrichtigungen.
     OrpheoBinarySensorEntityDescription(
@@ -86,6 +80,14 @@ BINARY_SENSOR_DESCRIPTIONS: tuple[OrpheoBinarySensorEntityDescription, ...] = (
 )
 
 
+# Bis v2.4.7 gab es "Cloud-Verbindung" auf Basis von `mqtt_connected`. Das
+# Flag ist aber kein Cloud-Status: die Anlage meldet 1, auch wenn sie
+# nachweislich keinen Internetzugang hat (verifiziert 2026-09-06 mit
+# Firewall-Sperre + Hersteller-App offline). Kein Datenpunkt der Anlage
+# bildet die Cloud-Verbindung ab -> Entity entfernt, Registry-Leiche raeumen.
+_REMOVED_KEYS = ("ph_mqtt_connected",)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -93,6 +95,15 @@ async def async_setup_entry(
 ) -> None:
     coordinator: OrpheoVPCoordinator = hass.data[DOMAIN][entry.entry_id]
     pool_id = entry.data[CONF_PHILEO_ID]
+
+    registry = er.async_get(hass)
+    for key in _REMOVED_KEYS:
+        entity_id = registry.async_get_entity_id(
+            BINARY_SENSOR_DOMAIN, DOMAIN, f"{pool_id}_{key}"
+        )
+        if entity_id:
+            _LOGGER.info("Entferne veraltete Entity %s (kein Cloud-Status verfuegbar)", entity_id)
+            registry.async_remove(entity_id)
 
     async_add_entities(
         OrpheoVPBinarySensor(coordinator, description, pool_id)
