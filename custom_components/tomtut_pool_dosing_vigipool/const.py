@@ -267,3 +267,38 @@ SNAPSHOT_READ_SUBTYPES: dict[str, str] = {
     "ph_setpoint": "consigne",
     "orp_setpoint": "consigne",
 }
+
+
+# ---------------------------------------------------------------------------
+# Tageszaehler "Dosierung heute" (ph_vol_24h / orp_vol_24h) — Restore (v2.4.9)
+# ---------------------------------------------------------------------------
+# Die Anlage publiziert vol_24h_inject NUR auf dem nicht-retained Subtyp
+# `info` — und nur, wenn sich der Wert aendert (also beim Dosieren bzw. beim
+# Tagesreset). Nach einem HA- oder Broker-Neustart kam deshalb bis v2.4.8 kein
+# Wert, der Sensor stand bis zur naechsten Dosierung auf `unknown`.
+#
+# Ab v2.4.9 wird der letzte Wert aus dem HA-State wiederhergestellt — aber NUR,
+# wenn er am selben LOKALEN Kalendertag entstanden ist. Ein "heute"-Wert von
+# gestern waere schlicht falsch. In dem Fall bleibt der Sensor `unknown`
+# (bewusst NICHT 0: ob die Anlage seit Mitternacht schon dosiert hat, wissen
+# wir nach dem Neustart nicht; 0 waere eine erfundene Messung). Fuer die
+# Statistik (TOTAL_INCREASING) ist `unknown` neutral, der naechste Live-Wert
+# wird als Reset erkannt.
+#
+# Massgeblich ist `last_updated` des gespeicherten States: es aendert sich nur,
+# wenn sich der Wert aendert (= die Anlage hat etwas Neues gemeldet).
+# `last_reported` taugt NICHT — CoordinatorEntity schreibt den State bei JEDEM
+# Coordinator-Update (pH/ORP-Messwerte laufend) neu, `last_reported` laege also
+# immer kurz vor dem Neustart, auch fuer einen Wert von gestern.
+def restored_daily_value_is_current(last_updated, now_local) -> bool:
+    """True, wenn `last_updated` (tz-aware, typ. UTC) am selben lokalen
+    Kalendertag liegt wie `now_local` (tz-aware, lokale HA-Zeitzone).
+
+    Ohne HA-Abhaengigkeit, damit standalone testbar. Fehlende oder naive
+    Zeitstempel -> False (lieber `unknown` als ein falscher Tageswert).
+    """
+    if last_updated is None or now_local is None:
+        return False
+    if last_updated.tzinfo is None or now_local.tzinfo is None:
+        return False
+    return last_updated.astimezone(now_local.tzinfo).date() == now_local.date()

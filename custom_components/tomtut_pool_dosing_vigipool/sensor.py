@@ -21,6 +21,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_PHILEO_ID,
@@ -28,6 +29,7 @@ from .const import (
     MANUFACTURER,
     MODEL_COMBINED,
     format_error_bitmask,
+    restored_daily_value_is_current,
 )
 from .coordinator import OrpheoVPCoordinator
 
@@ -37,6 +39,9 @@ class OrpheoSensorEntityDescription(SensorEntityDescription):
     data_key: str
     # Sollwert-Sensoren nach HA-Neustart aus dem HA-State wiederherstellen.
     restore: bool = False
+    # Tageszaehler ("heute"): nur restaurieren, wenn der gespeicherte Wert vom
+    # selben lokalen Kalendertag stammt (v2.4.9, Details in const.py).
+    restore_same_day: bool = False
     # Optionaler Formatter roh -> lesbarer Text (z.B. Fehler-Bitmaske).
     value_formatter: Callable | None = None
 
@@ -87,6 +92,7 @@ SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         suggested_display_precision=2,
         data_key="ph_vol_24h",
+        restore_same_day=True,
     ),
     OrpheoSensorEntityDescription(
         key="orp_vol_24h",
@@ -97,6 +103,7 @@ SENSOR_DESCRIPTIONS: tuple[OrpheoSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         suggested_display_precision=2,
         data_key="orp_vol_24h",
+        restore_same_day=True,
     ),
     OrpheoSensorEntityDescription(
         key="ph_vol_total",
@@ -251,6 +258,23 @@ class OrpheoVPSensor(CoordinatorEntity[OrpheoVPCoordinator], RestoreSensor):
         if self.entity_description.restore:
             last = await self.async_get_last_sensor_data()
             if last is not None and last.native_value is not None:
+                self._restored_value = last.native_value
+                self.async_write_ha_state()
+        elif self.entity_description.restore_same_day:
+            # "Dosierung heute" kommt nur auf nicht-retained `info` und nur
+            # bei Aenderung -> nach Neustart `unknown` bis zur naechsten
+            # Dosierung. Letzten Wert uebernehmen, aber nur vom selben
+            # lokalen Kalendertag (ein Vortageswert waere falsch).
+            last_state = await self.async_get_last_state()
+            last = await self.async_get_last_sensor_data()
+            if (
+                last_state is not None
+                and last is not None
+                and last.native_value is not None
+                and restored_daily_value_is_current(
+                    last_state.last_updated, dt_util.now()
+                )
+            ):
                 self._restored_value = last.native_value
                 self.async_write_ha_state()
 
