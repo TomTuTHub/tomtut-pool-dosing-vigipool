@@ -97,7 +97,10 @@ class OrpheoMqttClient:
         cid = f"ha_orpheo_vp_{phileo_id[-6:]}"
         if instance_suffix:
             cid = f"{cid}_{instance_suffix}"
+        # Callback-API VERSION2 (paho-mqtt >= 2.0): VERSION1 ist deprecated und
+        # erzeugt mit paho 2.x (HA-Standard) eine DeprecationWarning.
         self._client = mqtt.Client(
+            mqtt.CallbackAPIVersion.VERSION2,
             client_id=cid,
             clean_session=True,
         )
@@ -149,9 +152,10 @@ class OrpheoMqttClient:
 
     # ---------- paho callbacks (Thread-Kontext!) ----------
 
-    def _on_connect(self, client, userdata, flags, rc):  # noqa: ARG002
-        if rc != 0:
-            _LOGGER.error("MQTT connect failed (rc=%s)", rc)
+    def _on_connect(self, client, userdata, flags, reason_code, properties):  # noqa: ARG002
+        # VERSION2: reason_code ist ein paho ReasonCode-Objekt (auch bei MQTT 3.1.1).
+        if reason_code.is_failure:
+            _LOGGER.error("MQTT connect failed (rc=%s)", reason_code)
             return
         self._connected = True
         self._disconnected_ts = 0.0
@@ -162,7 +166,7 @@ class OrpheoMqttClient:
         client.subscribe(filters)
         _LOGGER.info("Subscribed: %s", [f[0] for f in filters])
 
-    def _on_disconnect(self, client, userdata, rc):  # noqa: ARG002
+    def _on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):  # noqa: ARG002
         # paho ruft diesen Callback bei EINEM einzigen unerwarteten Disconnect
         # aus mehreren Loop-Pfaden auf (loop_read + _loop_rc_handle), µs
         # auseinander im selben Thread — ohne interne Deduplizierung. Ohne
@@ -174,8 +178,8 @@ class OrpheoMqttClient:
             return
         self._connected = False
         self._disconnected_ts = time.time()
-        if rc != 0:
-            _LOGGER.warning("MQTT unexpected disconnect rc=%s — paho reconnects automatisch", rc)
+        if reason_code.is_failure:
+            _LOGGER.warning("MQTT unexpected disconnect rc=%s — paho reconnects automatisch", reason_code)
 
     def _on_message(self, client, userdata, msg):  # noqa: ARG002
         topic = msg.topic
