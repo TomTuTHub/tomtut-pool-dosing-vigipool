@@ -21,6 +21,7 @@ Use at your own risk.
 - **Self-healing connection** — if the device goes offline (network outage, reboot, blocked at firewall), entities go `unavailable` within ~30 s; once the device returns, the integration reconnects automatically — no manual re-add.
 - Sensors for **pH**, **Redox/ORP**, **flow**, **dosing pumps**, **daily/total injected volume**, **WiFi signal**, **firmware**, **errors**
 - ℹ️ The device does **not** expose its cloud-uplink status locally (`mqtt_connected` stays `1` even with internet blocked) — hence there is no "cloud connected" entity since v2.4.8. Use the manufacturer app to see whether the cloud can reach the device.
+- **Daily dosing survives restarts** (v2.4.9) — `pH/Chlor Dosierung heute` are only published by the device when they change (non-retained). After a Home Assistant or broker restart the last value is now restored — but only if it is from the **same local calendar day**; a value from yesterday is discarded (sensor stays `unknown` until the device reports again, never a made-up 0).
 - Read/write entities for **setpoints** (pH, ORP), **container size**, **daily max dose**, **spa-mode**, **winter-mode**
 - **Restmenge tracking** (canister fill level) — auto-decrements based on injected volume, persists across restarts
 - **Readable error codes** (v2.4.6) — the raw error bitmask is additionally exposed as a human-readable German text sensor (`sensor.*_fehler`), plus a **"Tageslimit erreicht" binary sensor** per channel (daily max dose reached) for automations. Container-size / max-dose config values are **debounced** against device value bursts.
@@ -195,7 +196,7 @@ Contributions are welcome!
 
 ## Danke an die Poolheld-Community
 
-Diese Integration wird durch euch besser: sauber recherchierte Issues, Logs, Pull Requests und Praxis-Berichte aus echten Pool-Setups sind der Grund, warum hier in kurzer Zeit mehrere Releases mit echten Verbesserungen entstanden sind. Besonderer Dank an [@MeierAlex](https://github.com/MeierAlex) (Dosiermengen-Fix in v2.4.4) und [@Cocoon169](https://github.com/Cocoon169) (Verbindungs-Analyse für v2.4.5). Weiter so — jede fundierte Meldung hilft allen.
+Diese Integration wird durch euch besser: sauber recherchierte Issues, Logs, Pull Requests und Praxis-Berichte aus echten Pool-Setups sind der Grund, warum hier in kurzer Zeit mehrere Releases mit echten Verbesserungen entstanden sind. Besonderer Dank an [@MeierAlex](https://github.com/MeierAlex) (Dosiermengen-Fix in v2.4.4), [@Cocoon169](https://github.com/Cocoon169) (Verbindungs-Analyse für v2.4.5) und [@frenck](https://github.com/frenck) (Hinweis auf die paho-mqtt Callback-API VERSION2 im HACS-Review, umgesetzt in v2.4.9). Weiter so — jede fundierte Meldung hilft allen.
 
 ## License
 
