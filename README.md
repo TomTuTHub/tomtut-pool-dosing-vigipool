@@ -129,21 +129,21 @@ Vorteile gegenüber einer geschalteten Steckdose: kein Reset des 24-h-Dosierzäh
 ## Woher kommen die Fehlercode-Texte?
 
 Die Anlage meldet Fehler als **u32-Bitmaske** auf dem MQTT-Topic `.../error/info/reported`.
-Seit v2.4.6 gibt es je Kanal zusaetzlich einen **lesbaren Fehler-Sensor** (`sensor.*_fehler`) und
+Seit v2.4.6 gibt es je Kanal zusätzlich einen **lesbaren Fehler-Sensor** (`sensor.*_fehler`) und
 einen **binary_sensor "Tageslimit erreicht"**. Der rohe Fehlercode-Sensor bleibt erhalten; der
-lesbare Sensor zeigt Rohwert und gesetzte Bits zusaetzlich als Attribute — es geht also **keine
+lesbare Sensor zeigt Rohwert und gesetzte Bits zusätzlich als Attribute — es geht also **keine
 Information verloren**.
 
 **Konservatives Mapping:** Nur Bits mit belegter Bedeutung bekommen einen Klartext; alle anderen
 werden weiterhin als `Bit N` angezeigt.
 
-- **Bit 31 (0x80000000) = „Tagesmaximaldosis erreicht“** — die einzige empirisch bestaetigte
+- **Bit 31 (0x80000000) = „Tagesmaximaldosis erreicht“** — die einzige empirisch bestätigte
   Zuordnung: am **2026-07-14** an einer realen Anlage beobachtet (pH-Fehlercode `2147483648` exakt
-  zeitgleich mit App-Push **E24** „Maximalvolumen injiziert“ + Pumpe ausser Betrieb). Der
-  deutsche Text folgt dem CCEI-Uebersetzungs-Key `V_MAX_INJECTED`.
+  zeitgleich mit App-Push **E24** „Maximalvolumen injiziert“ + Pumpe außer Betrieb). Der
+  deutsche Text folgt dem CCEI-Übersetzungs-Key `V_MAX_INJECTED`.
 - **Bit 24 (ORP)** bleibt bewusst **„Bit 24“ (unbekannt):** trat nur in den ersten drei
   Tagen nach Inbetriebnahme (12.–14.05.2026) auf, meist zusammen mit Bit 31, bei
-  unauffaelligen ORP-Messwerten (584–624 mV) — also **kein** Messfehler; vermutlich ein
+  unauffälligen ORP-Messwerten (584–624 mV) — also **kein** Messfehler; vermutlich ein
   Inbetriebnahme-/Kalibrier-Flag (unbewiesen). Quelle: HA-Export ka-147, Analyse 2026-07-14.
 
 **Quelle der Texte:** offizielles CCEI-Jeedom-Plugin
@@ -153,9 +153,9 @@ Datei `core/template/js/language_german.js`, Commit `51d6d5c9` (2024-08-09), abg
 > **Wichtig:** Das CCEI-Plugin dekodiert die Fehler-Bitmaske **nicht** selbst — die App-Fehlercodes
 > (E24/E27/E29/E9 …) werden von der Hersteller-Cloud als fertige Meldung gepusht. Es existiert also
 > keine offizielle Bit→Text-Tabelle. Deshalb ist bewusst **nur Bit 31** zugeordnet; weitere
-> Bedeutungen werden erst nach eigener empirischer Bestaetigung ergaenzt (der Kommentar in `const.py`
-> fuehrt die uebrigen CCEI-Texte — pH-/ORP-Messfehler, RS485, Temperatur — als dokumentierte
-> Referenz, aber ohne Bit-Bindung). Aendert CCEI Bedeutungen per Firmware, bleibt die Herkunft so
+> Bedeutungen werden erst nach eigener empirischer Bestätigung ergänzt (der Kommentar in `const.py`
+> führt die übrigen CCEI-Texte — pH-/ORP-Messfehler, RS485, Temperatur — als dokumentierte
+> Referenz, aber ohne Bit-Bindung). Ändert CCEI Bedeutungen per Firmware, bleibt die Herkunft so
 > nachvollziehbar.
 
 ---
